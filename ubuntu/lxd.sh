@@ -32,15 +32,18 @@ lxc storage create ${LXD_POOL_NAME} \
   lvm.vg.force_reuse=true
 lxc profile device add ${LXD_PROFILE} root disk path=/ pool=${LXD_POOL_NAME}
 
+# setup macvlan network
+lxc network create lxdmacv0 --type=macvlan parent=${PARENT_NIC}
+lxc profile device add default eth0 nic network=lxdmacv0
+
 # setup bridge network
 lxc network create lxdbr0 --type=bridge
 lxc profile device add default eth1 nic network=lxdbr0
 
-# setup macvlan network
-lxc network create lxdmacv0 --type=macvlan parent=${PARENT_NIC}
-lxc profile create ${LXD_PROFILE}
-lxc profile device add ${LXD_PROFILE} eth0 nic network=lxdmacv0
-
 # setup one-time token for remote management
 echo "Use below token to \"lxc remote add ${HOSTNAME} ${HOSTNAME}.local\""
 lxc config trust add --name ${REMOTE_USER_NAME}
+
+# add ubuntu-minimal as upstream
+lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases
+
