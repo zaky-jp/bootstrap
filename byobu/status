@@ -1,0 +1,10 @@
+# byobu-janitor will erase $BYOBU_CONFIG_DIR/status and $BYOBU_CONFIG_DIR/statusrc unless $BYOBU/CONFIG_DIR/status includes "^screen_upper_left="
+# this means even you only use tmux, screen_upper_left has to be defined.
+screen_upper_left=
+
+# Tmux has one status line, with 2 halves for status
+tmux_left="logo updates_available"
+
+# You can have as many tmux right lines below here, and cycle through them using Shift-F5
+tmux_right="fan_speed cpu_temp load_average cpu_count cpu_freq memory time"
+#tmux_right="hostname network ip_address"
