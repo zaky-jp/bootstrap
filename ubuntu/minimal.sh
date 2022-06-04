@@ -2,43 +2,52 @@
 
 set -eu
 
-# configs
-GITHUB_REPO=zaky-jp/playground
+# defaults
+FROM='server'
+GITHUB_REPO='zaky-jp/playground'
 
-# apt configs
+# parse arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --type)
+      TYPE=$2
+      shift
+      shift
+      ;;
+    --github-repo)
+      GITHUB_REPO=$2
+      shift
+      shift
+      ;;
+  esac
+done
+
+# install ca-certificates
+echo
+echo "Updating package list..."
+sudo apt-get --option "Acquire::https::Verify-Peer=false" update
+echo "Installing ca-certificates..."
+sudo apt-get --option "Acquire::https::Verify-Peer=false" install --no-install-recommends ca-certificates
+
+# set mirrors
 GITHUB_REPO_RAW=https://raw.githubusercontent.com/${GITHUB_REPO}/main
-echo "Fetching apt configs:"
-curl -sfL ${GITHUB_REPO_RAW}/ubuntu/etc/apt/mirrors.txt | \
-  sudo tee /etc/apt/mirrors.txt >/dev/null
+echo "Fetching apt configs from '${GITHUB_REPO}':"
+# assuming jammy setup
 curl -sfL ${GITHUB_REPO_RAW}/ubuntu/etc/apt/sources.list | \
   sudo tee /etc/apt/sources.list >/dev/null
-curl -sfL ${GITHUB_REPO_RAW}/ubuntu/etc/apt/apt.conf | \
+curl -sfL ${GITHUB_REPO_RAW}/ubuntu/etc/apt/mirrors.${TYPE}.txt | \
+  sudo tee /etc/apt/mirrors.txt >/dev/null
+curl -sfL ${GITHUB_REPO_RAW}/ubuntu/etc/apt/apt.${TYPE}.conf | \
   sudo tee /etc/apt/apt.conf >/dev/null
 
-DEBIAN_FRONTEND=noninteractive
+# even running minimal-ubuntu container we still want to cache apt packages
+if [[ -r /etc/apt/apt.conf.d/docker-clean ]]; then
+  sudo rm /etc/apt/apt.conf.d/docker-clean
+fi
 
-# use latest packages
+# upgrading to latest package
 echo
-echo "Updating to latest packages:"
-sudo apt update && sudo apt upgrade
+echo "Upgrading apt packages..."
+sudo apt-get update && sudo apt-get upgrade
+echo "Upgrading snap installs..."
 sudo snap refresh
-
-# install packages
-echo
-echo "Install neccessary tools:"
-# TODO implement flag for no-recommends
-sudo apt install --no-install-recommends \
-  doas \
-  git
-
-# setup doas
-## TODO: make this work in non-user environment
-echo
-echo "permit persist :adm" | sudo tee /etc/doas.conf > /dev/null
-doas -C /etc/doas.conf && \
-  echo "alias sudo=doas" >> ~/.bashrc
-
-# clone playground
-echo
-echo "Cloning playground directory:"
-git clone https://github.com/${GITHUB_REPO}.git
