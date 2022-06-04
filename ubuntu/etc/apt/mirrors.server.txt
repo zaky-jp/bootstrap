@@ -1,4 +1,4 @@
-http://ftp.udx.icscoe.jp/Linux/ubuntu/	priority:1
+https://ftp.udx.icscoe.jp/Linux/ubuntu/	priority:1
 http://jp.archive.ubuntu.com/ubuntu/	priority:2
 http://archive.ubuntu.com/ubuntu/
 
