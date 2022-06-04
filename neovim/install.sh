@@ -1,5 +1,4 @@
 #!/bin/bash
-
 set -eu
 
 # config
@@ -10,7 +9,23 @@ SCRIPT_DIR=$(dirname $(realpath -s $0))
 
 # ubuntu
 if [[ $(lsb_release --id --short) = "Ubuntu" ]]; then
-  sudo apt-get update && sudo apt-get install neovim
+  # install neovim
+  sudo apt-get update
+  sudo apt-get install neovim
+
+  # update-alternatives
+  vim_alts=(editor vi vim)
+  tool_alts=(ex view rview rvim vimdiff)
+  _nvim=$(which nvim 2>/dev/null)
+  _tool_dir=/usr/libexec/neovim #TODO remove hard-coding
+
+  for alt in ${vim_alts[@]}; do
+    sudo update-alternatives --set ${alt} ${_nvim}
+  done
+
+  for alt in ${tool_alts[@]}; do
+    sudo update-alternatives --set ${alt} ${_tool_dir}/${alt}
+  done
 fi
 
 # check if nvim is in the path
