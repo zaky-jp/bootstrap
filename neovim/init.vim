@@ -1,13 +1,9 @@
 " jetpack
 " install if not already
-for name in jetpack#names()
-  if !jetpack#tap(name)
-    call jetpack#sync()
-    break
-  endif
-endfor
 
+packadd vim-jetpack
 call jetpack#begin()
+call jetpack#add('tani/vim-jetpack', {'opt': 1})
 call jetpack#add('cohama/lexima.vim')
 call jetpack#add('luochen1990/rainbow')
 call jetpack#add('ekalinin/Dockerfile.vim')
@@ -15,7 +11,16 @@ call jetpack#add('tpope/vim-surround')
 call jetpack#add('tomtom/tcomment_vim')
 call jetpack#add('isobit/vim-caddyfile')
 call jetpack#add('overcache/NeoSolarized')
+call jetpack#add('dense-analysis/ale')
 call jetpack#end()
+
+for name in jetpack#names()
+  if !jetpack#tap(name)
+    call jetpack#sync()
+    break
+  endif
+endfor
+
 
 " ruler
 set number
