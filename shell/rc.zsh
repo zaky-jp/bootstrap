@@ -1,4 +1,10 @@
 #!/usr/bin/env zsh
+# prompt
+## Activate Powerlevel10k Instant Prompt
+if [[ -r "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # prepare zplug
 export ZPLUG_HOME="${XDG_DATA_HOME}/zsh/zplug"
 if [[ -d "${ZPLUG_HOME}" ]]; then
@@ -100,3 +106,5 @@ export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 # load zplug
 [[ -d "${ZPLUG_HOME}" ]] && zplug load
 
+# load p10k config
+[[ -r "${ZDOTDIR}/.p10k.zsh" ]] && source "${ZDOTDIR}/.p10k.zsh"
