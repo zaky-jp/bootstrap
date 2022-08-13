@@ -1,5 +1,32 @@
 #!/usr/bin/env zsh
+# prepare zplug
+export ZPLUG_HOME="${XDG_DATA_HOME}/zsh/zplug"
+if [[ -d "${ZPLUG_HOME}" ]]; then
+  export ZPLUG_CACHE_DIR="${XDG_CACHE_HOME}/zsh/zplug"
+  source "${ZPLUG_HOME}/init.zsh"
 
+  ## list plugins
+  zplug "zplug/zplug", depth:1, hook-build:"zplug --self-manage"
+  zplug "chrissicool/zsh-256color"
+  zplug "zsh-users/zsh-syntax-highlighting", depth:1 # no need to worry about compinit zsh >5.8
+  zplug "zsh-users/zsh-autosuggestions", depth:1
+  zplug "plugins/shrink-path", from:oh-my-zsh, depth:1
+  zplug "romkatv/powerlevel10k", as:theme, depth:1
+
+  ## make sure to install plugin
+  zplug check || zplug install
+
+  ## create precompiled files if needed
+  () {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in \
+    ${ZPLUG_REPOS}/**/*.zsh(.) \
+    ${ZPLUG_REPOS}/zplug/zplug/autoload/**/^*.zwc(.); do
+      [[ $f.zwc -nt $f ]] || zcompile -R -- $f.zwc $f
+    done
+  }
+fi
 
 # command history
 export HISTFILE="${XDG_DATA_HOME}/zsh/histfile"
@@ -25,7 +52,14 @@ if [[ -w "${HISTFILE}" ]]; then
   setopt HIST_FIND_NO_DUPS
 fi
 
-# ls
+# alias
+## rm
+if (( $+commands[trash] )); then
+  # TODO implement -R and other option switches
+  alias rm="trash"
+fi
+
+## ls
 local _ls_args="-aAF"
 local _ls_colour
 # colourize
@@ -36,43 +70,33 @@ esac
 alias ls="ls ${_ls_args} ${_ls_colour}"
 alias lsl="ls -l ${_ls_args} ${_ls_colour}"
 
-# brew
+## brew
 if [[ "$RUNOS" == 'darwin' ]]; then
   # execute command as _brew user
   alias brew='sudo -i -u _brew -- brew'
 fi
 
+## vim
+if (( $+commands[vimr] )); then
+  alias gv=vimr
+fi
+alias v="${EDITOR}"
+
+## git
+alias gs="git status"
+alias gc="git commit"
+alias ga="git add"
+alias gp="git push"
+alias gd="git diff"
+alias gds="git diff --staged"
+
 # completion
 autoload -Uz compinit && compinit
 [[ ${ZDOTDIR}/.zcompdump.zwc -nt ${ZDOTDIR}/.zcompdump ]] || zcompile -R -- ${ZDOTDIR}/.zcompdump{.zwc,}
 
-# prepare zplug
-export ZPLUG_HOME="${XDG_DATA_HOME}/zsh/zplug"
-if [[ -d "${ZPLUG_HOME}" ]]; then
-  export ZPLUG_CACHE_DIR="${XDG_CACHE_HOME}/zsh/zplug"
-  source "${ZPLUG_HOME}/init.zsh"
+# prompt
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
-  # list plugins
-  zplug "zplug/zplug", depth:1, hook-build:"zplug --self-manage"
-  zplug "chrissicool/zsh-256color"
-  zplug "zsh-users/zsh-syntax-highlighting", depth:1 # no need to worry about compinit zsh >5.8
-  zplug "zsh-users/zsh-autosuggestions", depth:1 \
-    && export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
-  zplug "plugins/shrink-path", from:oh-my-zsh, depth:1
+# load zplug
+[[ -d "${ZPLUG_HOME}" ]] && zplug load
 
-  # make sure to install plugin
-  zplug check || zplug install
-
-  # create cache files if needed
-  () {
-  emulate -L zsh -o extended_glob
-  local f
-  for f in \
-    ${ZPLUG_REPOS}/**/*.zsh(.) \
-    ${ZPLUG_REPOS}/zplug/zplug/autoload/**/^*.zwc(.); do
-      [[ $f.zwc -nt $f ]] || zcompile -R -- $f.zwc $f
-    done
-  }
-
-  zplug load
-fi
