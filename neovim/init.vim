@@ -53,6 +53,10 @@ set autochdir
 set termguicolors
 colorscheme NeoSolarized
 
+if has("gui")
+  set guifont=SF\ Mono\ Square:h20
+endif
+
 syntax on
 
 set background=light
