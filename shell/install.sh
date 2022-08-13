@@ -2,7 +2,7 @@
 set -eu
 
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-ZSH_CONFIG_HOME="${XDG_CONFIG_HOME}/zsh"
+ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
 SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
 
 # make sure running OS is known
@@ -13,16 +13,21 @@ if [[ -z "${RUNOS}" ]]; then
 fi
 
 # make sure dir exists
-if [[ ! -d "${ZSH_CONFIG_HOME}" ]]; then
-  echo "Creating ZSH_CONFIG_HOME"
-  mkdir -p "${ZSH_CONFIG_HOME}"
+if [[ ! -d "${ZDOTDIR}" ]]; then
+  echo "Creating zsh config under \$XDG_CONFIG_HOME"
+  mkdir -p "${ZDOTDIR}"
 fi
 
 # check if zsh is already installed
 if ! (which -s zsh); then
-  if [[ "$RUNOS" == 'ubuntu' ]]; then
-    sudo apt-get install zsh
-  fi
+  case "${RUNOS}" in
+    'ubuntu')
+      sudo apt-get install zsh
+      ;;
+    '*')
+      echo "Install script is not aware of installation process for ${RUNOS}"
+      ;;
+  esac
 else
   echo "zsh already installed."
 fi
@@ -48,7 +53,7 @@ function _symlink() {
   fi
 }
 
-_symlink "${ZSH_CONFIG_HOME}/.zshenv" "${SCRIPT_DIR}/env.zsh"
-_symlink "${ZSH_CONFIG_HOME}/.zshrc" "${SCRIPT_DIR}/rc.zsh"
-_symlink "${ZSH_CONFIG_HOME}/.zlogin" "${SCRIPT_DIR}/login.zsh"
-_symlink "${ZSH_CONFIG_HOME}/.p10k.zsh" "${SCRIPT_DIR}/p10k.zsh"
+_symlink "${ZDOTDIR}/.zshenv" "${SCRIPT_DIR}/env.zsh"
+_symlink "${ZDOTDIR}/.zshrc" "${SCRIPT_DIR}/rc.zsh"
+_symlink "${ZDOTDIR}/.zlogin" "${SCRIPT_DIR}/login.zsh"
+_symlink "${ZDOTDIR}/.p10k.zsh" "${SCRIPT_DIR}/p10k.zsh"
