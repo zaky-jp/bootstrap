@@ -54,6 +54,6 @@ function _symlink() {
 }
 
 _symlink "${ZDOTDIR}/.zshenv" "${SCRIPT_DIR}/env.zsh"
+_symlink "${ZDOTDIR}/.zprofile" "${SCRIPT_DIR}/profile.zsh"
 _symlink "${ZDOTDIR}/.zshrc" "${SCRIPT_DIR}/rc.zsh"
-_symlink "${ZDOTDIR}/.zlogin" "${SCRIPT_DIR}/login.zsh"
 _symlink "${ZDOTDIR}/.p10k.zsh" "${SCRIPT_DIR}/p10k.zsh"
