@@ -44,13 +44,18 @@ if [[ -d "${HOME}/.local/bin" ]]; then
   append_path "${HOME}/.local/bin"
 fi
 
-# declare XDG-related variables
-# reuse existing variables if already set by systemd etc.
+# env variable
+## XDG-related variables
+## reuse existing variables if already set by systemd etc.
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.run}"
 
+## gibo
+if (( ${+commands[gibo]} )); then
+  export GIBO_BOILERPLATES="${XDG_DATA_HOME}/gibo"
+fi
 # set default editor
 if (( ${+commands[editor]} )); then
   # fall-back to update-alternatives symlink if avaiable
