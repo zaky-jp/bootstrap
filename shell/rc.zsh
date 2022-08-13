@@ -1,6 +1,5 @@
 #!/usr/bin/env zsh
 
-export SSH_AUTH_SOCK=~/.run/1password/agent.sock
 
 # command history
 export HISTFILE="${XDG_DATA_HOME}/zsh/histfile"

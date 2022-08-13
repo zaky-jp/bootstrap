@@ -49,6 +49,7 @@ fi
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.run}"
 
 # set default editor
 if (( ${+commands[editor]} )); then
@@ -58,6 +59,11 @@ elif (( ${+commands[nvim]} )); then
   export EDITOR=nvim
 else
   export EDTIOR=vi
+fi
+
+# activate 1password SSH agent
+if [[ -e "${XDG_RUNTIME_DIR}/1password/agent.sock" ]]; then
+  export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/1password/agent.sock"
 fi
 
 # cleanup
