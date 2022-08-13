@@ -14,7 +14,7 @@ if [[ -d "${ZPLUG_HOME}" ]]; then
   ## list plugins
   zplug "zplug/zplug", depth:1, hook-build:"zplug --self-manage"
   zplug "chrissicool/zsh-256color"
-  zplug "zsh-users/zsh-syntax-highlighting", depth:1 # no need to worry about compinit zsh >5.8
+  zplug "zsh-users/zsh-syntax-highlighting", depth:1, defer:2
   zplug "zsh-users/zsh-autosuggestions", depth:1
   zplug "plugins/shrink-path", from:oh-my-zsh, depth:1
   zplug "romkatv/powerlevel10k", as:theme, depth:1
@@ -96,12 +96,20 @@ alias gp="git push"
 alias gd="git diff"
 alias gds="git diff --staged"
 
-# completion
-autoload -Uz compinit && compinit
-[[ ${ZDOTDIR}/.zcompdump.zwc -nt ${ZDOTDIR}/.zcompdump ]] || zcompile -R -- ${ZDOTDIR}/.zcompdump{.zwc,}
-
 # prompt
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+
+# completion
+if (( $+commands[brew] )); then
+  ## if brew directory is owned by different user, never able to supress security warnings
+  ## thus rsyncing to user-owned directory
+  rsync -Lrq --delete --chmod=ugo=rwX "$(command brew --prefix)/share/zsh/site-functions" "${XDG_DATA_HOME}/zsh"
+  FPATH="${XDG_DATA_HOME}/zsh/site-functions:${FPATH}"
+fi
+typeset -gU fpath FPATH
+
+autoload -Uz compinit && compinit -u
+[[ ${ZDOTDIR}/.zcompdump.zwc -nt ${ZDOTDIR}/.zcompdump ]] || zcompile -R -- ${ZDOTDIR}/.zcompdump{.zwc,}
 
 # load zplug
 [[ -d "${ZPLUG_HOME}" ]] && zplug load
