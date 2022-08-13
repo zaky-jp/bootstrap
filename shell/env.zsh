@@ -20,21 +20,21 @@ export RUNOS
 
 # configure path
 if [[ ${RUNOS} == "darwin" ]]; then
-  local HOMEBREW_DIR
   if [[ -x "/opt/homebrew/bin/brew" ]]; then
-    HOMEBREW_DIR="/opt/homebrew"
+    HOMEBREW_PREFIX="/opt/homebrew"
   elif [[ -x "/usr/local/bin/brew" ]]; then
-    HOMEBREW_DIR="/usr/local"
+    HOMEBREW_PREFIX="/usr/local"
   fi
+  export HOMEBREW_PREFIX
 
-  if [[ -n "${HOMEBREW_DIR}" ]]; then
-    append_path "${HOMEBREW_DIR}/bin"
-    append_path "${HOMEBREW_DIR}/sbin"
+  if [[ -n "${HOMEBREW_PREFIX}" ]]; then
+    append_path "${HOMEBREW_PREFIX}/bin"
+    append_path "${HOMEBREW_PREFIX}/sbin"
 
     # program-specific
     # gcp sdk
-    if [[ -r "${HOMEBREW_DIR}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc" ]]; then
-      source "${HOMEBREW_DIR}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+    if [[ -r "${HOMEBREW_PREFIX}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc" ]]; then
+      source "${HOMEBREW_PREFIX}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
     fi
   fi
 fi
@@ -56,6 +56,7 @@ export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.run}"
 if (( ${+commands[gibo]} )); then
   export GIBO_BOILERPLATES="${XDG_DATA_HOME}/gibo"
 fi
+
 # set default editor
 if (( ${+commands[editor]} )); then
   # fall-back to update-alternatives symlink if avaiable
