@@ -44,12 +44,14 @@ fi
 
 # symlink init files
 function _symlink() {
-  __file="$1"
-  if [[ -e "${__file}" ]]; then
-    echo "${__file} already exists."
+  _src="$1"
+  _dst="$2"
+  if [[ -e "${_src}" ]]; then
+    echo "${_src} already exists."
   else
-    echo "Symlinking ${__file}"
-    ln -s "$2" "${__file}"
+    mkdir -p "$(dirname $_src)"
+    echo "Symlinking ${_src}"
+    ln -s "${_dst}" "${_src}"
   fi
 }
 
@@ -57,3 +59,4 @@ _symlink "${ZDOTDIR}/.zshenv" "${SCRIPT_DIR}/env.zsh"
 _symlink "${ZDOTDIR}/.zprofile" "${SCRIPT_DIR}/profile.zsh"
 _symlink "${ZDOTDIR}/.zshrc" "${SCRIPT_DIR}/rc.zsh"
 _symlink "${ZDOTDIR}/.p10k.zsh" "${SCRIPT_DIR}/p10k.zsh"
+_symlink "${XDG_DATA_HOME:-$HOME/.local/share}/zsh/functions" "${SCRIPT_DIR}/functions"

@@ -112,6 +112,17 @@ typeset -gU fpath FPATH
 autoload -Uz compinit && compinit -u
 [[ ${ZDOTDIR}/.zcompdump.zwc -nt ${ZDOTDIR}/.zcompdump ]] || zcompile -R -- ${ZDOTDIR}/.zcompdump{.zwc,}
 
+# functions
+if [[ -d "${XDG_DATA_HOME}/zsh/functions" ]]; then
+  () {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in ${XDG_DATA_HOME}/zsh/functions/*(.); do
+    source $f
+  done
+}
+fi
+
 # load zplug
 [[ -d "${ZPLUG_HOME}" ]] && zplug load
 
