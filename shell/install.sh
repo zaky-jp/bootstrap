@@ -19,7 +19,7 @@ if [[ ! -d "${ZDOTDIR}" ]]; then
 fi
 
 # check if zsh is already installed
-if ! (which -s zsh); then
+if ! (which zsh 1>/dev/null 2>&1); then
   case "${RUNOS}" in
     'ubuntu')
       sudo apt-get install zsh
@@ -33,8 +33,11 @@ else
 fi
 
 # set proper ZDOTDIR
-_zshenv_path="/etc/zshenv" # sometimes it points to /etc/zsh/zshenv but do not know when
-if ! (grep -q 'ZDOTDIR' "${_zshenv_path}"); then
+case "$RUNOS" in
+  'ubuntu') _zshenv_path="/etc/zsh/zshenv" ;;
+  *) _zshenv_path="/etc/zshenv"
+esac
+if ! (grep -q 'ZDOTDIR' "${_zshenv_path}" 2>/dev/null); then
   echo "Creating ${_zshenv_path}..."
   # do not want to hardcode $HOME/.config but not hardcoding requires to have ~/.zshenv for all users
   echo 'ZDOTDIR=$HOME/.config/zsh' | sudo tee -a "${_zshenv_path}"
