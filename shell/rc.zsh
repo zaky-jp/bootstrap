@@ -18,6 +18,7 @@ if [[ -d "${ZPLUG_HOME}" ]]; then
   zplug "zsh-users/zsh-autosuggestions", depth:1
   zplug "plugins/shrink-path", from:oh-my-zsh, depth:1
   zplug "zaky-jp/globalias-augmented", depth:1, use:'globalias.plugin.zsh'
+  zplug "endaaman/lxd-completion-zsh", depth:1, if:"(( $+commands[lxc] ))"
   zplug "romkatv/powerlevel10k", as:theme, depth:1
 
   ## make sure to install plugin
