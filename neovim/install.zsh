@@ -14,6 +14,7 @@ local brew="${brew:-sudo -l -u _brew -- brew}"
 JETPACK_URL=https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim
 export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
+local SCRIPT_DIR=$(dirname $(realpath -s $0))
 
 
 # check for nvim installation
@@ -70,10 +71,10 @@ if (( $+commands[update-alternatives] )); then
 fi
 
 # get XDG dirs ready
-if ! [[ -d ${XDG_DATA_HOME} && -d ${XDG_CONFIG_HOME} ]]; then
+if ! [[ -d ${XDG_DATA_HOME}/nvim && -d ${XDG_CONFIG_HOME}/nvim ]]; then
   echo "Getting XDG dirs ready..."
-  mkdir -p "${XDG_DATA_HOME}"
-  mkdir -p "${XDG_CONFIG_HOME}"
+  mkdir -p "${XDG_DATA_HOME}/nvim"
+  mkdir -p "${XDG_CONFIG_HOME}/nvim"
 fi
 
 # install package manager
