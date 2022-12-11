@@ -23,8 +23,10 @@ if ! (which zsh 1>/dev/null 2>&1); then
   case "${RUNOS}" in
     'ubuntu')
       sudo apt-get install zsh
+      sudo locale-gen en_US.UTF-8
+      sudo dpkg-reconfigure locales
       ;;
-    '*')
+    *)
       echo "Install script is not aware of installation process for ${RUNOS}"
       ;;
   esac

@@ -7,6 +7,15 @@ fi
 
 # prepare zplug
 export ZPLUG_HOME="${XDG_DATA_HOME}/zsh/zplug"
+
+## automatically install zplug unless set ZPLUG_AUTOINSTALL=0
+ZPLUG_AUTOINSTALL=${ZPLUG_AUTOINSTALL:-1}
+if (( ${ZPLUG_AUTOINSTALL} )); then
+  if ! [[ -d "${ZPLUG_HOME}" ]]; then
+    git clone https://github.com/zplug/zplug $ZPLUG_HOME
+  fi
+fi
+
 if [[ -d "${ZPLUG_HOME}" ]]; then
   export ZPLUG_CACHE_DIR="${XDG_CACHE_HOME}/zsh/zplug"
   source "${ZPLUG_HOME}/init.zsh"
@@ -61,6 +70,14 @@ if [[ -w "${HISTFILE}" ]]; then
 fi
 
 # alias
+## sudo
+if (( $+commands[doas] )); then
+  _sudo="doas"
+  alias sudo="doas"
+else
+  _sudo="sudo"
+fi
+
 ## rm
 if (( $+commands[trash] )); then
   # TODO implement -R and other option switches
@@ -97,6 +114,16 @@ alias ga="git add"
 alias gp="git push"
 alias gd="git diff"
 alias gds="git diff --staged"
+
+## apt
+if (( $+commands[apt] )); then
+  alias apt="$_sudo $commands[apt]"
+fi
+
+## docker
+if (( $+commands[docker] )); then
+  alias docker="$_sudo $commands[docker]"
+fi
 
 # prompt
 export ZSH_AUTOSUGGEST_MANUAL_REBIND=1

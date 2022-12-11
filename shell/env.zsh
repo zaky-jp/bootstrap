@@ -52,6 +52,11 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-${HOME}/.cache}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.run}"
 
+## in ubuntu
+if [[ $RUNOS == "ubuntu" ]]; then
+  export NEEDRESTART=a # supress restart message
+fi
+
 ## gibo
 if (( ${+commands[gibo]} )); then
   export GIBO_BOILERPLATES="${XDG_DATA_HOME}/gibo"
@@ -71,6 +76,10 @@ fi
 if [[ -e "${XDG_RUNTIME_DIR}/1password/agent.sock" ]]; then
   export SSH_AUTH_SOCK="${XDG_RUNTIME_DIR}/1password/agent.sock"
 fi
+
+# set langauge
+LC_CTYPE="en_US.UTF-8"
+LANG="en_US.UTF-8"
 
 # cleanup
 unfunction append_path
