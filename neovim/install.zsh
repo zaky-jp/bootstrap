@@ -27,13 +27,13 @@ else
   # install neovim
   case "${RUNOS}" in
     'ubuntu')
-      $apt update
-      $apt install neovim
+      ${=apt} update
+      ${=apt} install neovim
       ;;
     'darwin')
       brew="$S -l -u _brew -- brew"
-      $brew update
-      $brew install neovim
+      ${=brew} update
+      ${=brew} install neovim
       ;;
     *)
       echo "Running on unintended OS." 1>&2

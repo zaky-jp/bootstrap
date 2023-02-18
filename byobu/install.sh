@@ -23,6 +23,12 @@ mkdir -p "${XDG_CONFIG_HOME}/byobu"
 
 # byobu ocasionally writes directly to status and symlink will break
 # thus not attempting symlinking
-cp ./status "${XDG_CONFIG_HOME}/byobu/status"
+if [[ -e "${XDG_CONFIG_HOME}/byobu/status" ]]; then
+  rm "${XDG_CONFIG_HOME}/byobu/status"
+fi
+cp "${SCRIPT_DIR}/status" "${XDG_CONFIG_HOME}/byobu/status"
 
+if [[ -e "${XDG_CONFIG_HOME}/byobu/.tmux.conf" ]]; then
+  rm "${XDG_CONFIG_HOME}/byobu/.tmux.conf"
+fi
 ln -s "${SCRIPT_DIR}/tmux.conf" "${XDG_CONFIG_HOME}/byobu/.tmux.conf"
