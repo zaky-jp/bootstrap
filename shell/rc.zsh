@@ -89,16 +89,16 @@ local _ls_args="-aAF"
 local _ls_colour
 # colourize
 case "${RUNOS}" in;
-  'darwin') _ls_colour="-G";;
+  'macos') _ls_colour="-G";;
   *) _ls_colour="--color";; # assume gnu-ls
 esac
 alias ls="ls ${_ls_args} ${_ls_colour}"
 alias lsl="ls -l ${_ls_args} ${_ls_colour}"
 
 ## brew
-if [[ "$RUNOS" == 'darwin' ]]; then
+if [[ "$RUNOS" == 'macos' ]]; then
   # execute command as _brew user
-  alias brew='sudo -i -u _brew -- brew'
+  alias brew='sudo -i -u homebrew -- brew'
 fi
 
 ## vim

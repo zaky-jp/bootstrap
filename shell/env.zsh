@@ -10,7 +10,7 @@ case $OSTYPE in
     RUNOS="${(L)$(lsb_release --id --short)}" # convert to lowercase
     ;;
   "darwin"*)
-    RUNOS='darwin'
+    RUNOS='macos'
     ;;
   *)
     RUNOS="${OSTYPE}"
