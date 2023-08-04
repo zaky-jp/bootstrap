@@ -33,8 +33,9 @@ if [[ ${RUNOS} == "darwin" ]]; then
 
     # program-specific
     # gcp sdk
-    if [[ -r "${HOMEBREW_PREFIX}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc" ]]; then
-      source "${HOMEBREW_PREFIX}/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc"
+    if [[ -d "${HOMEBREW_PREFIX}/share/google-cloud-sdk" ]]; then
+      source "${HOMEBREW_PREFIX}/share/google-cloud-sdk/path.zsh.inc"
+      source "${HOMEBREW_PREFIX}/share/google-cloud-sdk/completion.zsh.inc"
     fi
   fi
 fi
