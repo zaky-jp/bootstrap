@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 if (( $+commands[alacritty] )); then
-  function ssh() {
+  function gssh() {
     echo "Starting ssh in a new alacritty window:"
     nohup alacritty --command ssh "${@}" -- 1>/dev/null 2>&1 &
     # TERM variable is always send to the remote server
