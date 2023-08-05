@@ -1,0 +1,33 @@
+function get_absolute_path() {
+  local rp=$1 #somehow zsh cannot correctly invoke $1 directly and call $1 from outer-scope thus substituting with arbitary variable
+  echo "${rp:a}"
+}
+
+function get_dirname() {
+  local p=$1
+  echo "${p:h}"
+}
+
+function safe_symlink() {
+  if [[ $# != 2 ]]; then
+    log_warn "safe_symlink: not enough argument given"
+    exit 1
+  fi
+  local origin=$(get_absolute_path $1)
+  local destination=$(get_absolute_path $2)
+
+  if [[ -e $destination ]]; then
+    log_info "$destination already exists"
+    return
+  fi
+
+  # create destination dir if not exist
+  if [[ ! -d $(get_dirname $destination) ]]; then
+    mkdir -p $destination
+  fi
+
+  log_info "Symlinking $origin"
+  ln -s "$destination" "$origin"
+}
+
+# vim: se filetype=zsh:

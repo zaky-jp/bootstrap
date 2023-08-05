@@ -1,0 +1,11 @@
+function brew() {
+  local brew_user="homebrew"
+  if (dscl . -list /Users | grep -q "${brew_user}"); then
+    # it is always good to specify full path when switching to root user so that sudoers can be configured properly
+    sudo -l -u $brew_user -- $commands[brew] "$@"
+  else
+    brew "$@"
+  fi
+}
+
+# vim: se filetype=zsh:

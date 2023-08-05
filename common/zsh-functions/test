@@ -1,0 +1,23 @@
+function test_constant() {
+  local CONSTANT_VARS=(\
+      RUNOS\
+  )
+
+  for v in ${CONSTANT_VARS}; do
+    if [[ ! -v "$v" ]]; then
+      log_fatal "\$${v} not set. aborting..."
+    fi
+  done
+}
+
+function test_command() {
+  local cmd=$1
+  if (( $+commands[${cmd}] )); then
+    log_info "${cmd} already installed"
+    return 0
+  else
+    return 1
+  fi
+}
+
+# vim: se filetype=zsh:
