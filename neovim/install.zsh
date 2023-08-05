@@ -1,97 +1,81 @@
 #!/usr/bin/env zsh
 set -eu
 
-# make sure running OS is known, otherwise fail fast
-RUNOS="${RUNOS:-}"
-if [[ -z "${RUNOS}" ]]; then
-  echo "RUNOS not set." 1>&2
+## 0. read lib files
+## outcome: zsh-functions under $PLAYGROUND_DIR/common/zsh-functions/ sourced
+if [[ ! -v "PLAYGROUND_DIR" ]]; then
+  echo "\$PLAYGROUND_DIR not set. aborting..." 2>&1
   exit 1
-fi
-
-# config
-local apt="${apt:-sudo apt-get}"
-local brew="${brew:-sudo -l -u _brew -- brew}"
-JETPACK_URL=https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim
-export XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local/share}
-export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
-local SCRIPT_DIR=$(dirname $(realpath -s $0))
-
-
-# check for nvim installation
-printf "Checking if nvim is installed... "
-if (( $+commands[nvim] )); then
-  printf "[installed]\n"
+elif [[ ! -d "${PLAYGROUND_DIR}" ]]; then
+  echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
+  exit 1
 else
-  printf "not found.\n"
-  echo "Begin installation..."
-  # install neovim
-  case "${RUNOS}" in
-    'ubuntu')
-      ${=apt} update
-      ${=apt} install neovim
+  () {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
+    echo "loading ${f}"
+    source "${f}"
+  done
+  }
+fi
+test_constant
+
+## 1. initialisation
+## outcome: $NVIM_CONFIG and $NVIM_DATA set and directories created
+local NVIM_CONFIG="${NVIM_CONFIG:-${XDG_CONFIG_HOME}/nvim}"
+local NVIM_DATA="${NVIM_DATA:-${XDG_DATA_HOME}/nvim}"
+mkdir -p "${NVIM_CONFIG}"
+mkdir -p "${NVIM_DATA}"
+log_notice "Installing neovim..."
+
+## 2. install neovim
+## outcome: neovim installed by appropriate package manager
+local pkg="neovim"
+if ! test_command nvim; then
+  case "$RUNOS" in
+    "macos")
+      brew install "${pkg}"
       ;;
-    'darwin')
-      brew="$S -l -u _brew -- brew"
-      ${=brew} update
-      ${=brew} install neovim
+    "ubuntu")
+      apt install "${pkg}"
       ;;
     *)
-      echo "Running on unintended OS." 1>&2
-      exit 1
+      log_fatal "Please install ${pkg} manually. aborting..."
       ;;
   esac
 fi
 
-# make sure nvim is in the path
-if ! (( $+commands[nvim] )); then
-  echo "nvim not found on path" 1>&2
-  exit 1
+## 3. install neovim package manager
+## outcome: jetpack.vim installed
+local JETPACK_PATH="${NVIM_DATA}/site/pack/jetpack/opt/vim-jetpack/plugin/jetpack.vim"
+if [[ -e ${JETPACK_PATH} ]]; then
+  log_info "jetpack already installed"
+else
+  log_info "installing jetpack..."
+  mkdir -p "$(get_dirname ${JETPACK_PATH})"
+  cp "${PLAYGROUND_DIR}/neovim/jetpack/plugin/jetpack.vim" "${JETPACK_PATH}"
 fi
 
-# configure update-alternatives if exists
-if (( $+commands[update-alternatives] )); then
-  echo "Configuring update-alternatives..."
-  local lib_path="/usr/libexec/neovim" # hardcoded
+## 4. symlinking configuration file
+## outcome: init.vim symlinked under $NVIM_CONFIG
+safe_symlink "${PLAYGROUND_DIR}/neovim/init.vim" "${NVIM_CONFIG}/init.vim"
 
-  local tool list=(editor vi vim)
-  for tool in "${list[@]}"; do
-    echo "\t$tool"
-    sudo update-alternatives --set "${tool}" "$commands[nvim]"
-  done
-
-  if [[ -d ${lib_path} ]]; then
+## 5. [if ubuntu] configuring update-alternatives
+## outcome: update-alternative sets neovim as first choice editor
+if [[ "$RUNOS" == "ubuntu" ]]; then
+  local NVIM_LIBEXEC="/usr/libexec/neovim" # hardcoded
+  if [[ ! -x "${NVIM_LIBEXEC}" ]]; then
+    log_warn "neovim library not found. skipping update-alternatives..."
+  else
+    log_info "configuring update-alternatives..."
+    local list=(editor vi vim)
+    for tool in "${list[@]}"; do
+      sudo update-alternatives --set "${tool}" "$commands[nvim]"
+    done
     list=(ex view rview rvim vimdiff)
     for tool in "${list[@]}"; do
-      echo "\t$tool"
-      sudo update-alternatives --set "${tool}" "${lib_path}/${tool}"
+      sudo update-alternatives --set "${tool}" "${NVIM_LIBEXEC}/${tool}"
     done
-  else
-    echo "${lib_path} not found on system. skipping update-alternatives..." 1>&2
   fi
-fi
-
-# get XDG dirs ready
-if ! [[ -d ${XDG_DATA_HOME}/nvim && -d ${XDG_CONFIG_HOME}/nvim ]]; then
-  echo "Getting XDG dirs ready..."
-  mkdir -p "${XDG_DATA_HOME}/nvim"
-  mkdir -p "${XDG_CONFIG_HOME}/nvim"
-fi
-
-# install package manager
-local JETPACK_PATH="${XDG_DATA_HOME}/nvim/site/pack/jetpack/opt/vim-jetpack/plugin/jetpack.vim"
-if [[ -e ${JETPACK_PATH} ]]; then
-  echo "Jetpack already installed"
-else
-  echo "Installing jetpack..."
-  curl -sfLo "${JETPACK_PATH}" --create-dirs "${JETPACK_URL}"
-  if ! [[ -e "${JETPACK_PATH}" ]]; then
-    echo "Jetpack could not be placed under XDG_DATA_HOME" 1>&2
-    exit 1
-  fi
-fi
-
-# symlink init.vim
-if ! [[ -e "${XDG_CONFIG_HOME}/nvim/init.vim" ]]; then
-  echo "Symlinking init.vim to XDG_CONFIG_HOME"
-  ln -s "${SCRIPT_DIR}/init.vim" "${XDG_CONFIG_HOME}/nvim/init.vim"
 fi
