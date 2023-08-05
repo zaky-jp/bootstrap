@@ -1,17 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -eu
+INDENT_CHARS="==> "
 
-# config
-TERMINFO_URL=https://raw.githubusercontent.com/alacritty/alacritty/master/extra/alacritty.info
-
-# download terminfo
-TERMINFO_PATH="$(mktemp -d)/alacritty.info"
-curl -sfLo "${TERMINFO_PATH}" "${TERMINFO_URL}"
-
-# install terminfo
-if [[ -r "${TERMINFO_PATH}" ]]; then
-  tic -xe alacritty,alacritty-direct "${TERMINFO_PATH}"
+## 1. check terminfo status
+## outcome: terminate if terminfo is available
+if infocmp alacritty >/dev/null 2>&1; then
+  echo "${INDENT_CHARS}terminfo already installed"
+  exit
 else
-  echo "TERMINFO file not readable by user" 1>&2
-  exit 2
+  echo "${INDENT_CHARS}Installing alacritty terminfo..."
 fi
+
+## 2. install terminfo filne
+## outcome: alacritty terminfo saved to /usr/share/terminfo
+tic -xe alacritty,alacritty-direct "${PLAYGROUND_DIR}/alacritty/upstream/extra/alacritty.info"

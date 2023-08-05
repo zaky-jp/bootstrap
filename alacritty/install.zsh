@@ -1,31 +1,66 @@
 #!/usr/bin/env zsh
 set -eu
 
-###########
-# Initialisation
-###########
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
-ALACRITTY_CONFIG_HOME="${ALACRITTY_CONFIG_HOME:-$XDG_CONFIG_HOME/alacritty}"
-SCRIPT_DIR=$(dirname $(readlink -f $0))
+## 0. reading lib files
+## outcome: zsh-functions under $PLAYGROUND_DIR/common/zsh-functions/ sourced
+if [[ ! -v "PLAYGROUND_DIR" ]]; then
+  echo "\$PLAYGROUND_DIR not set. aborting..." 2>&1
+  exit 1
+elif [[ ! -d "${PLAYGROUND_DIR}" ]]; then
+  echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
+  exit 1
+else
+  () {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
+    echo "loading ${f}"
+    source "${f}"
+  done
+  }
+fi
+test_constant
 
-###########
-# Create symbolic link
-###########
+## 1. initialisation
+## outcome: $ALACRITTY_CONFIG set
+ALACRITTY_CONFIG="${ALACRITTY_CONFIG:-${XDG_CONFIG_HOME}/alacritty}"
+log_notice "Installing alacritty..."
 
-if [[ ! -d "$ALACRITTY_CONFIG_HOME" ]]; then
-  mkdir -p "$ALACRITTY_CONFIG_HOME"
+## 2. installing alacritty
+## outcome: alacritty installed by appropriate package manager
+local pkg="alacritty"
+if ! test_command "${pkg}"; then
+  case "$RUNOS" in
+    "macos")
+      brew install "${pkg}";;
+    *)
+      log_fatal "Please install ${pkg} manually. aborting...";;
+  esac
 fi
 
-if [[ ! -e "/Library/Fonts/SFMonoSquare-Regular.otf" ]]; then
-  echo "SFMonoSquare is not yet installed."
+## 3. [if macos] installing SF Mono Square font
+## outcome: SF Mono Square font files copied to /Library/Fonts/
+if [[ $RUNOS="macos" && ! -e "/Library/Fonts/SFMonoSquare-Regular.otf" ]]; then
+  log_notice "SFMonoSquare is not yet installed."
   if [[ -d "$(brew --prefix sfmono-square)/share/fonts" ]]; then
-    #TODO
-    echo
+    log_info "SFMonoSquare is already generated."
   else
-    echo "try \`brew install delphinus/sfmono-square/sfmono-square\`"
+    brew install delphinus/sfmono-square/sfmono-square
   fi
+  log_info "moving fonts to /Library/Fonts"
+  () {
+    emulate -L zsh -o extended_glob
+    sudo cp -n "$(brew --prefix sfmono-square)"/share/fonts/*.otf /Library/Fonts
+  }
 fi
 
-if [[ ! -h "${ALACRITTY_CONFIG_HOME}/alacritty.yml" ]]; then
-  ln -s "${SCRIPT_DIR}/configuration.yml" "${ALACRITTY_CONFIG_HOME}/alacritty.yml" 
-fi
+## 4. symlinking configuration file
+## outcome: configuration file symlinked to $ALACRITTY_CONFIG
+safe_symlink "${PLAYGROUND_DIR}/alacritty/configuration.yml" "${ALACRITTY_CONFIG}/alacritty.yml"
+
+## 5. installing terminfo file
+## outcome: terminfo file saved under /usr/share/terminfo or $TERMINFO
+# this is required as screen/tmux refer terminfo folder, and do not refer to internal terminfo under /Application folder (at least for macos)
+"${PLAYGROUND_DIR}/alacritty/terminfo.sh"
+
+# vim: se filetype=zsh:
