@@ -1,62 +1,54 @@
 #!/usr/bin/env zsh
 set -eu
 
-local sdir="${${(%):-%N}:h}" # get relative path to the script dir
-local brew_user='homebrew'
-
-# make sure running OS is known
-RUNOS="${RUNOS:-}"
-if [[ -z "${RUNOS}" ]]; then
-  echo "RUNOS not set." 1>&2
+## 0. read lib files
+## outcome: zsh-functions under $PLAYGROUND_DIR/common/zsh-functions/ sourced
+if [[ ! -v "PLAYGROUND_DIR" ]]; then
+  echo "\$PLAYGROUND_DIR not set. aborting..." 2>&1
   exit 1
-fi
-
-function brew() {
-  if (dscl . -list /Users | grep -q "${brew_user}"); then
-    sudo -i -u "${brew_user}" -- brew "$@"
-  else
-    brew "$@"
-  fi
-}
-
-# install byobu
-if (( $+commands[byobu] )); then
-  echo "byobu already installed."
+elif [[ ! -d "${PLAYGROUND_DIR}" ]]; then
+  echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
+  exit 1
 else
-  echo "installing byobu..."
-  case $RUNOS in
-    ubuntu)
-      sudo apt-get update
-      sudo apt-get install byobu
-      ;;
-    macos)
-      brew update
-      brew install byobu
-      ;;
+  () {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
+    echo "loading ${f}"
+    source "${f}"
+  done
+  }
+fi
+test_constant
+
+## 1. initialisation
+## outcome: $BYOBU_CONFIG set
+BYOBU_CONFIG="${BYOBU_CONFIG:-${XDG_CONFIG_HOME}/byobu}"
+log_notice "Installing byobu..."
+
+## 2. installing byobu
+## outcome: byobu installed by appropriate package manager
+local pkg="byobu"
+if ! test_command "${pkg}"; then
+  case "$RUNOS" in
+    "macos")
+      brew install "${pkg}";;
+    "ubuntu")
+      apt install "${pkg}";;
     *)
-      echo "${RUNOS} not yet implemented. aborting..." 1>&2
-      exit 1
-      ;;
+      log_fatal "Please install ${pkg} manually. aborting...";;
   esac
 fi
 
-# install config
-echo "installing configs..."
-if [[ ! -d "${XDG_CONFIG_HOME}/byobu" ]]; then
-  mkdir -p "${XDG_CONFIG_HOME}/byobu"
-  echo "- created config directory"
-fi
-
-if [[ -e "${XDG_CONFIG_HOME}/byobu/status" ]]; then
+## 3. copying configuration files
+## outcome: config files copied to ${BYOBU_CONFIG}
+if [[ -e "${BYOBU_CONFIG}/status" ]]; then
   # byobu ocasionally writes directly to status and symlink will break
   # thus not attempting symlinking
-  cp "${XDG_CONFIG_HOME}/byobu/status" "${XDG_CONFIG_HOME}/byobu/status.bak"
-  rm "${XDG_CONFIG_HOME}/byobu/status"
+  log_info "backing up current config"
+  cp "${BYOBU_CONFIG}/status" "${BYOBU_CONFIG}/status.bak"
+  rm "${BYOBU_CONFIG}/status"
 fi
-cp "${sdir}/status" "${XDG_CONFIG_HOME}/byobu/status"
-echo "- copied status line config"
-
-if [[ ! -h "${XDG_CONFIG_HOME}/byobu/.tmux.conf" ]]; then
-  ln -s "${sdir}/tmux.conf" "${XDG_CONFIG_HOME}/byobu/.tmux.conf"
-  echo "- copied tmux config"
-fi
+log_info "copying PLAYGROUND config"
+cp "${PLAYGROUND_DIR}/byobu/status" "${BYOBU_CONFIG}/status"
+safe_symlink "${PLAYGROUND_DIR}/byobu/tmux.conf" "${BYOBU_CONFIG}/.tmux.conf"
