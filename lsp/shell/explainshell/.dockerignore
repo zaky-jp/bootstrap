@@ -1,0 +1,6 @@
+upstream/*
+!upstream/explainshell/*
+!upstream/tests/*
+!upstream/Makefile
+!upstream/requirements.txt
+!upstream/runserver.py

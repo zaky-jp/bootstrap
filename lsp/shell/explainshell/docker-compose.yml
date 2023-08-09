@@ -1,0 +1,15 @@
+services:
+  db:
+    image: mongo
+    volumes:
+      - ./db-dump:/var/cache/db-dump/
+  web:
+    build: .
+    command: make serve
+    environment:
+      - MONGO_URI=mongodb://db
+      - HOST_IP=0.0.0.0
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db

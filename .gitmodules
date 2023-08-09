@@ -4,3 +4,6 @@
 [submodule "neovim/jetpack"]
 	path = neovim/jetpack
 	url = https://github.com/tani/vim-jetpack
+[submodule "lsp/shell/explainshell"]
+	path = lsp/shell/explainshell/upstream
+	url = https://github.com/idank/explainshell.git
