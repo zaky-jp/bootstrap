@@ -16,18 +16,18 @@ function safe_symlink() {
   local origin=$(get_absolute_path $1)
   local destination=$(get_absolute_path $2)
 
-  if [[ -e $destination ]]; then
+  if [[ -e $destination || -s $destination ]]; then
     log_info "$destination already exists"
     return
   fi
 
   # create destination dir if not exist
   if [[ ! -d $(get_dirname $destination) ]]; then
-    mkdir -p $destination
+    mkdir -p $(get_dirname $destination)
   fi
 
   log_info "Symlinking $origin"
-  ln -s "$destination" "$origin"
+  ln -s "$origin" "$destination"
 }
 
 # vim: se filetype=zsh:
