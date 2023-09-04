@@ -1,48 +1,14 @@
 #!/usr/bin/env zsh
 # prompt
+export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 ## Activate Powerlevel10k Instant Prompt
 if [[ -r "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# prepare zplug
-export ZPLUG_HOME="${XDG_DATA_HOME}/zsh/zplug"
-
-## automatically install zplug unless set ZPLUG_AUTOINSTALL=0
-ZPLUG_AUTOINSTALL=${ZPLUG_AUTOINSTALL:-1}
-if (( ${ZPLUG_AUTOINSTALL} )); then
-  if ! [[ -d "${ZPLUG_HOME}" ]]; then
-    git clone https://github.com/zplug/zplug $ZPLUG_HOME
-  fi
-fi
-
-if [[ -d "${ZPLUG_HOME}" ]]; then
-  export ZPLUG_CACHE_DIR="${XDG_CACHE_HOME}/zsh/zplug"
-  source "${ZPLUG_HOME}/init.zsh"
-
-  ## list plugins
-  zplug "zplug/zplug", depth:1, hook-build:"zplug --self-manage"
-  zplug "chrissicool/zsh-256color"
-  zplug "zsh-users/zsh-syntax-highlighting", depth:1, defer:2
-  zplug "zsh-users/zsh-autosuggestions", depth:1
-  zplug "plugins/shrink-path", from:oh-my-zsh, depth:1
-#  zplug "zaky-jp/globalias-augmented", depth:1, use:'globalias.plugin.zsh'
-  zplug "endaaman/lxd-completion-zsh", depth:1, if:"(( $+commands[lxc] ))"
-  zplug "romkatv/powerlevel10k", as:theme, depth:1
-
-  ## make sure to install plugin
-  zplug check || zplug install
-
-  ## create precompiled files if needed
-  () {
-  emulate -L zsh -o extended_glob
-  local f
-  for f in \
-    ${ZPLUG_REPOS}/**/*.zsh(.) \
-    ${ZPLUG_REPOS}/zplug/zplug/autoload/**/^*.zwc(.); do
-      [[ $f.zwc -nt $f ]] || zcompile -R -- $f.zwc $f
-    done
-  }
+## Activate zplug
+if [[ -e "${PLAYGROUND_DIR}/shell/zplug.zsh" ]]; then
+  source "${PLAYGROUND_DIR}/shell/zplug.zsh"
 fi
 
 # command history
@@ -70,70 +36,15 @@ if [[ -w "${HISTFILE}" ]]; then
 fi
 
 # alias
-## sudo
-if (( $+commands[doas] )); then
-  _sudo="doas"
-  alias sudo="doas"
-else
-  _sudo="sudo"
+if [[ -e "${PLAYGROUND_DIR}/shell/alias.zsh" ]]; then
+  source "${PLAYGROUND_DIR}/shell/alias.zsh"
 fi
-
-## rm
-if (( $+commands[trash] )); then
-  # TODO implement -R and other option switches
-  alias rm="trash"
-fi
-
-## ls
-local _ls_args="-aAF"
-local _ls_colour
-# colourize
-case "${RUNOS}" in;
-  'macos') _ls_colour="-G";;
-  *) _ls_colour="--color";; # assume gnu-ls
-esac
-alias ls="ls ${_ls_args} ${_ls_colour}"
-alias lsl="ls -l ${_ls_args} ${_ls_colour}"
-
-## brew
-if [[ "$RUNOS" == 'macos' ]]; then
-  # execute command as _brew user
-  alias brew='sudo -i -u homebrew -- brew'
-fi
-
-## vim
-if (( $+commands[vimr] )); then
-  alias gv=vimr
-fi
-alias v="${EDITOR}"
-
-## git
-alias gs="git status"
-alias gc="git commit"
-alias ga="git add"
-alias gp="git push"
-alias gd="git diff"
-alias gds="git diff --staged"
-
-## apt
-if (( $+commands[apt] )); then
-  alias apt="$_sudo $commands[apt]"
-fi
-
-## docker
-if (( $+commands[nerdctl] )); then
-  alias nerdctl="$_sudo $commands[nerdctl]"
-  alias docker=nerdctl
-fi
-
-# prompt
-export ZSH_AUTOSUGGEST_MANUAL_REBIND=1
 
 # completion
 if (( $+commands[brew] )); then
   ## if brew directory is owned by different user, never able to supress security warnings
   ## thus rsyncing to user-owned directory
-  rsync -Lrq --delete --chmod=ugo=rwX "$(command brew --prefix)/share/zsh/site-functions" "${XDG_DATA_HOME}/zsh"
+  rsync -Lrq --delete --chmod=ugo=rwX "${HOMEBREW_PREFIX}/share/zsh/site-functions" "${XDG_DATA_HOME}/zsh"
   FPATH="${XDG_DATA_HOME}/zsh/site-functions:${FPATH}"
 fi
 typeset -gU fpath FPATH

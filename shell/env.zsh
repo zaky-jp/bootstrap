@@ -10,7 +10,7 @@ case $OSTYPE in
     RUNOS="${(L)$(lsb_release --id --short)}" # convert to lowercase
     ;;
   "darwin"*)
-    RUNOS='macos'
+    RUNOS="macos"
     ;;
   *)
     RUNOS="${OSTYPE}"
@@ -19,23 +19,25 @@ esac
 export RUNOS
 
 # configure path
-if [[ ${RUNOS} == "darwin" ]]; then
-  if [[ -x "/opt/homebrew/bin/brew" ]]; then
-    HOMEBREW_PREFIX="/opt/homebrew"
-  elif [[ -x "/usr/local/bin/brew" ]]; then
-    HOMEBREW_PREFIX="/usr/local"
+if [[ ${RUNOS} == "macos" ]]; then
+  if [[ -e "/opt/homebrew/bin/brew" ]]; then
+    export HOMEBREW_PREFIX="/opt/homebrew"
+  elif [[ -e "/usr/local/bin/brew" ]]; then
+    export HOMEBREW_PREFIX="/usr/local"
   fi
-  export HOMEBREW_PREFIX
 
-  if [[ -n "${HOMEBREW_PREFIX}" ]]; then
+  if [[ -v "HOMEBREW_PREFIX" ]]; then
+    export HOMEBREW_CELLAR="${HOMEBREW_PREFIX}/Cellar";
+    export HOMEBREW_REPOSITORY="${HOMEBREW_PREFIX}/Homebrew";
     append_path "${HOMEBREW_PREFIX}/bin"
     append_path "${HOMEBREW_PREFIX}/sbin"
+    #export MANPATH="${HOMEBREW_PREFIX}/share/man${MANPATH+:$MANPATH}:";
+    #export INFOPATH="${HOMEBREW_PREFIX}/share/info:${INFOPATH:-}";
 
     # program-specific
     # gcp sdk
     if [[ -d "${HOMEBREW_PREFIX}/share/google-cloud-sdk" ]]; then
       source "${HOMEBREW_PREFIX}/share/google-cloud-sdk/path.zsh.inc"
-      source "${HOMEBREW_PREFIX}/share/google-cloud-sdk/completion.zsh.inc"
     fi
   fi
 fi
@@ -44,6 +46,15 @@ if [[ -d "${HOME}/.local/bin" ]]; then
   # systemd expects user binary in this directory
   append_path "${HOME}/.local/bin"
 fi
+
+# TODO: proper pip install
+if [[ -d "$HOME/Library/Python/3.9/bin" ]]; then
+  append_path "$HOME/Library/Python/3.9/bin"
+fi
+
+#if [[ -d "$HOME/esp/esp-idf/" ]]; then
+#  source "$HOME/esp/esp-idf/export.sh"
+#fi
 
 # env variable
 ## XDG-related variables
@@ -81,6 +92,11 @@ fi
 # set langauge
 LC_CTYPE="en_US.UTF-8"
 LANG="en_US.UTF-8"
+
+# set playground dir
+if [[ -d "$HOME/playground" ]]; then
+  export PLAYGROUND_DIR="$HOME/playground"
+fi
 
 # cleanup
 unfunction append_path

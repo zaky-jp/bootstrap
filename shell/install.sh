@@ -3,7 +3,7 @@ set -eu
 
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 ZDOTDIR="${XDG_CONFIG_HOME}/zsh"
-SCRIPT_DIR="$(dirname "$(realpath -s "$0")")"
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 # make sure running OS is known
 RUNOS="${RUNOS:-}"
@@ -34,6 +34,13 @@ else
   echo "zsh already installed."
 fi
 
+# check if zsh is already in standard shell
+if [[ "${RUNOS}" == 'macos' ]]; then
+  zsh_path=$(which zsh)
+  (grep -q "${zsh_path}" /etc/shells 2>/dev/null) || \
+  echo "${zsh_path}" | sudo tee -a /etc/shells	  
+fi
+
 # set proper ZDOTDIR
 case "$RUNOS" in
   'ubuntu') _zshenv_path="/etc/zsh/zshenv" ;;
@@ -51,7 +58,7 @@ fi
 function _symlink() {
   _src="$1"
   _dst="$2"
-  if [[ -e "${_src}" ]]; then
+  if [[ -e "${_src}" || -h "${_src}" ]]; then
     echo "${_src} already exists."
   else
     mkdir -p "$(dirname $_src)"
