@@ -42,13 +42,10 @@ fi
 
 ## 3. copying configuration files
 ## outcome: config files copied to ${BYOBU_CONFIG}
-if [[ -e "${BYOBU_CONFIG}/status" ]]; then
-  # byobu ocasionally writes directly to status and symlink will break
-  # thus not attempting symlinking
-  log_info "backing up current config"
-  cp "${BYOBU_CONFIG}/status" "${BYOBU_CONFIG}/status.bak"
-  rm "${BYOBU_CONFIG}/status"
-fi
+log_info "backing up current config"
+backup "${BYOBU_CONFIG}/status"
+backup "${BYOBU_CONFIG}/.tmux.conf"
+
 log_info "copying PLAYGROUND config"
 cp "${PLAYGROUND_DIR}/byobu/status" "${BYOBU_CONFIG}/status"
 safe_symlink "${PLAYGROUND_DIR}/byobu/tmux.conf" "${BYOBU_CONFIG}/.tmux.conf"
