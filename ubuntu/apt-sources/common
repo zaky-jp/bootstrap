@@ -1,0 +1,17 @@
+install_key_from_url() {
+  local keyring_dir='/etc/apt/trusted.gpg.d'
+  local key_url=$1
+  local key_filename=$2
+
+  curl -fsSL "${key_url}" | sudo dd of="${keyring_dir}/${key_filename}"
+  sudo chmod go+r "${keyring_dir}/${key_filename}"
+}
+
+create_source_list() {
+  local source_dir='/etc/apt/sources.list.d'
+  local source_name=$1
+  local source_string=$2
+  echo "${source_string}" | sudo tee "${source_dir}/${source_name}" >/dev/null
+}
+
+# vim: filetype=zsh:
