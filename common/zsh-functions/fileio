@@ -8,6 +8,14 @@ function get_dirname() {
   echo "${p:h}"
 }
 
+function backup() {
+  local file=$1
+  if [[ -e $file || -s $file ]]; then
+    log_info "$file already exists. moving to ${file}.bak..."
+    mv "${file}" "${file}.bak"
+  fi
+}
+
 function safe_symlink() {
   if [[ $# != 2 ]]; then
     log_warn "safe_symlink: not enough argument given"
