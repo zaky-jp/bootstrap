@@ -1,34 +1,12 @@
 #!/bin/bash
 set -eu
 
-# parse options
-function _help() {
-  cat <<EOS
-Usage: minimal.sh [option]
-  --noninteractive-instance
-  --help
-EOS
-  exit 0
-}
-
-# initialisation
-_NONINTERACTIVE=0
-
-while (( $# > 0 )); do
-  case $1 in
-    --noninteractive-instance)
-      _NONINTERACTIVE=1
-      shift
-      ;;
-    --help)
-      _help
-      ;;
-  esac
-done
-
 # wait for system startup
 echo "Checking system boot status..."
 systemctl is-system-running --wait
+
+# set proper timezone
+timedatectl set-timezone 'Asia/Tokyo'
 
 # apt configs
 echo "Deploying apt config..."
@@ -40,16 +18,6 @@ APT {
   };
 };
 EOS
-
-## /etc/apt/apt.conf.d/noninteractive.conf
-if [[ ${_NONINTERACTIVE} -eq 1 ]]; then
-  sudo mkdir -p /etc/apt/apt.conf.d/
-  cat <<EOS | sudo tee /etc/apt/apt.conf.d/noninteractive.conf 1>/dev/null
-APT {
-  Install-Recommends "false";
-};
-EOS
-fi
 
 ## /etc/apt/sources.list
 cat <<EOS | sudo tee /etc/apt/sources.list 1>/dev/null
@@ -71,15 +39,9 @@ if [[ -r /etc/apt/apt.conf.d/docker-clean ]]; then
   sudo rm /etc/apt/apt.conf.d/docker-clean
 fi
 
+## enable auto restart
+export NEEDRESTART_MODE='a'
 # update to latest packages
-## script may not be run under interactive shell
-if [[ ${_NONINTERACTIVE} -eq 1 ]]; then
-  export DEBIAN_FRONTEND='noninteractive'
-  export NEEDRESTART_MODE='a'
-else
-  export DEBIAN_FRONTEND='readline'
-fi
-
 echo "Installing ca-certificates..."
 ## check if ca-certificates is already installed
 if dpkg-query --show -f '${package}\n' | grep --silent 'ca-certificates'; then
@@ -101,4 +63,3 @@ sudo --preserve-env=DEBIAN_FRONTEND,NEEDRESTART_MODE apt-get upgrade
 echo
 echo "Upgrading snap installs..."
 sudo snap refresh
-
