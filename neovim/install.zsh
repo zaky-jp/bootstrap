@@ -53,6 +53,7 @@ if [[ -e ${JETPACK_PATH} ]]; then
   log_info "jetpack already installed"
 else
   log_info "installing jetpack..."
+  eval "${PLAYGROUND_DIR}/neovim/sparcecheckout.sh"
   mkdir -p "$(get_dirname ${JETPACK_PATH})"
   cp "${PLAYGROUND_DIR}/neovim/jetpack/plugin/jetpack.vim" "${JETPACK_PATH}"
 fi
@@ -71,7 +72,7 @@ if [[ "$RUNOS" == "ubuntu" ]]; then
     log_info "configuring update-alternatives..."
     local list=(editor vi vim)
     for tool in "${list[@]}"; do
-      sudo update-alternatives --set "${tool}" "$commands[nvim]"
+      sudo update-alternatives --set "${tool}" "${commands[nvim]}"
     done
     list=(ex view rview rvim vimdiff)
     for tool in "${list[@]}"; do
