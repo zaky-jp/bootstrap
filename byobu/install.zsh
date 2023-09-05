@@ -47,5 +47,6 @@ backup "${BYOBU_CONFIG}/status"
 backup "${BYOBU_CONFIG}/.tmux.conf"
 
 log_info "copying PLAYGROUND config"
+mkdir -p "${BYOBU_CONFIG}"
 cp "${PLAYGROUND_DIR}/byobu/status" "${BYOBU_CONFIG}/status"
 safe_symlink "${PLAYGROUND_DIR}/byobu/tmux.conf" "${BYOBU_CONFIG}/.tmux.conf"
