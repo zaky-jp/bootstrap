@@ -8,4 +8,12 @@ function brew() {
   fi
 }
 
+function apt() {
+  sudo apt "$@"
+}
+
+function apt-get() {
+  sudo apt-get "$@"
+}
+
 # vim: se filetype=zsh:
