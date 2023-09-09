@@ -1,25 +1,13 @@
 #!/usr/bin/env zsh
 set -eu
 
-## 0. read lib files
-## outcome: zsh-functions under $PLAYGROUND_DIR/common/zsh-functions/ sourced
-if [[ ! -v "PLAYGROUND_DIR" ]]; then
-  echo "\$PLAYGROUND_DIR not set. aborting..." 2>&1
-  exit 1
-elif [[ ! -d "${PLAYGROUND_DIR}" ]]; then
+## 0. source common functions
+## outcome: $PLAYGROUND_DIR/common/zsh-functions/ sourced
+if [[ ! -d "${PLAYGROUND_DIR}" ]]; then
   echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
   exit 1
-else
-  () {
-  emulate -L zsh -o extended_glob
-  local f
-  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
-    echo "loading ${f}"
-    source "${f}"
-  done
-  }
 fi
-test_constant
+source "${PLAYGROUND_DIR}/common/zsh-functions/init"
 
 ## 1. initialisation
 ## outcome: $BYOBU_CONFIG set
