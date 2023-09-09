@@ -57,7 +57,7 @@ safe_symlink "${PLAYGROUND_DIR}/neovim/init.lua" "${NVIM_CONFIG}/init.lua"
 if [[ "$RUNOS" == "ubuntu" ]]; then
   local NVIM_PATH="/snap/nvim/current/usr/bin/nvim" # hardcoded
   if [[ ! -x "${NVIM_PATH}" ]]; then
-    log_wan "neovim is not installed by snap. skipping update-alternatives..."
+    log_warn "neovim is not installed by snap. skipping update-alternatives..."
   else
     log_info "configuring update-alternatives..."
     local list=(editor vi vim)
