@@ -1,0 +1,12 @@
+() {
+  emulate -L zsh -o extended_glob
+  local f
+  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
+    [[ $f == *init ]] && continue
+    echo "loading ${f}"
+    source "${f}"
+  done
+}
+test_constant
+
+# vim: filetype=zsh:
