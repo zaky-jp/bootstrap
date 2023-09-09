@@ -59,8 +59,8 @@ else
 fi
 
 ## 4. symlinking configuration file
-## outcome: init.vim symlinked under $NVIM_CONFIG
-safe_symlink "${PLAYGROUND_DIR}/neovim/init.vim" "${NVIM_CONFIG}/init.vim"
+## outcome: init.lua symlinked under $NVIM_CONFIG
+safe_symlink "${PLAYGROUND_DIR}/neovim/init.lua" "${NVIM_CONFIG}/init.lua"
 
 ## 5. [if ubuntu] configuring update-alternatives
 ## outcome: update-alternative sets neovim as first choice editor
