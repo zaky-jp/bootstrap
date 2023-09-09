@@ -16,4 +16,8 @@ function apt-get() {
   sudo apt-get "$@"
 }
 
+function snap() {
+  sudo snap "$@"
+}
+
 # vim: se filetype=zsh:

@@ -3,23 +3,11 @@ set -eu
 
 ## 0. read lib files
 ## outcome: zsh-functions under $PLAYGROUND_DIR/common/zsh-functions/ sourced
-if [[ ! -v "PLAYGROUND_DIR" ]]; then
-  echo "\$PLAYGROUND_DIR not set. aborting..." 2>&1
-  exit 1
-elif [[ ! -d "${PLAYGROUND_DIR}" ]]; then
+if [[ ! -d "${PLAYGROUND_DIR}" ]]; then
   echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
   exit 1
-else
-  () {
-  emulate -L zsh -o extended_glob
-  local f
-  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
-    echo "loading ${f}"
-    source "${f}"
-  done
-  }
 fi
-test_constant
+source "${PLAYGROUND_DIR}/common/zsh-functions/init"
 
 ## 1. initialisation
 ## outcome: $NVIM_CONFIG and $NVIM_DATA set and directories created
@@ -38,7 +26,7 @@ if ! test_command nvim; then
       brew install "${pkg}"
       ;;
     "ubuntu")
-      apt install "${pkg}"
+      snap install nvim --classic
       ;;
     *)
       log_fatal "Please install ${pkg} manually. aborting..."
@@ -64,19 +52,24 @@ safe_symlink "${PLAYGROUND_DIR}/neovim/init.lua" "${NVIM_CONFIG}/init.lua"
 
 ## 5. [if ubuntu] configuring update-alternatives
 ## outcome: update-alternative sets neovim as first choice editor
+
+
 if [[ "$RUNOS" == "ubuntu" ]]; then
-  local NVIM_LIBEXEC="/usr/libexec/neovim" # hardcoded
-  if [[ ! -x "${NVIM_LIBEXEC}" ]]; then
-    log_warn "neovim library not found. skipping update-alternatives..."
+  local NVIM_PATH="/snap/nvim/current/usr/bin/nvim" # hardcoded
+  if [[ ! -x "${NVIM_PATH}" ]]; then
+    log_wan "neovim is not installed by snap. skipping update-alternatives..."
   else
     log_info "configuring update-alternatives..."
     local list=(editor vi vim)
     for tool in "${list[@]}"; do
-      sudo update-alternatives --set "${tool}" "${commands[nvim]}"
+      sudo update-alternatives --install "$(which ${tool})" "${tool}" "${NVIM_PATH}" 100
+      sudo update-alternatives --set "${tool}" "${NVIM_PATH}"
     done
-    list=(ex view rview rvim vimdiff)
-    for tool in "${list[@]}"; do
-      sudo update-alternatives --set "${tool}" "${NVIM_LIBEXEC}/${tool}"
-    done
+    # ToDo need to manually create shellscript files, as they are created as a part of ubuntu release
+    # https://git.launchpad.net/ubuntu/+source/neovim/tree/debian/scripts?h=ubuntu/jammy&id=803f15ab5ac9163f38abe7bce43c9aaa5ec093be
+    #list=(ex view rview rvim vimdiff)
+    #for tool in "${list[@]}"; do
+    #  sudo update-alternatives --set "${tool}" "${NVIM_LIBEXEC}/${tool}"
+    #done
   fi
 fi
