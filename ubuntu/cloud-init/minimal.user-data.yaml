@@ -5,8 +5,6 @@ ssh_import_id:
   - "gh:zaky-jp"
 
 ## apt configuration
-bootcmd:
-  - "[ -e /etc/apt/apt.conf.d/docker-clean ] && rm /etc/apt/apt.conf.d/docker-clean"
 apt:
   primary:
     - arches:
@@ -31,3 +29,8 @@ apt:
 package_update: true
 package_upgrade: true
 package_reboot_if_required: true
+snap:
+  commands:
+    - ['refresh']
+packages:
+  - systemd-container
