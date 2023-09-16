@@ -22,7 +22,7 @@ if ! test_command "${pkg}"; then
     "macos")
       brew install "${pkg}";;
     "ubuntu")
-      apt install "${pkg}";;
+      apt-get install "${pkg}";;
     *)
       log_fatal "Please install ${pkg} manually. aborting...";;
   esac
