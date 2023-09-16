@@ -1,7 +1,7 @@
 # homebrew
-if (( "${+commands[brew]}" )); then
+if (( ${+commands[brew]} )); then
   typeset -gA brew_list
-  local brew_json="${XDG_CACHE_HOME}/brew.json"
+  export brew_json="${XDG_CACHE_HOME}/brew.json"
 
   function brew() {
     local brew_user="homebrew"
@@ -32,9 +32,9 @@ if (( "${+commands[brew]}" )); then
 fi
 
 # apt
-if (( "${+commands[apt-get]}" )); then
+if (( ${+commands[apt-get]} )); then
   typeset -gA apt_list
-  local apt_json="${XDG_CACHE_HOME}/apt.json"
+  export apt_json="${XDG_CACHE_HOME}/apt.json"
   function apt-get() {
     sudo "${commands[apt-get]}" "$@"
     _apt_list_cache
@@ -43,7 +43,7 @@ if (( "${+commands[apt-get]}" )); then
   function _apt_list_cache() {
     log_info "generating apt list..."
     dpkg-query --show -f '{"name":"${Package}","version":"${Version}","status":"${Status}"}\n' | \
-      jq -r 'select(.status=="install ok installed")' > "${apt_json}" 
+      jq -r 'select(.status=="install ok installed")' > "${apt_json}"
     _apt_list_update
   }
 
@@ -58,9 +58,9 @@ if (( "${+commands[apt-get]}" )); then
 fi
 
 # snap
-if (( "${+commands[snap]}" )); then
+if (( ${+commands[snap]} )); then
   typeset -gA snap_list
-  local snap_json="${XDG_CACHE_HOME}/snap.json"
+  export snap_json="${XDG_CACHE_HOME}/snap.json"
   function snap() {
     sudo "${commands[snap]}" "$@"
   }
