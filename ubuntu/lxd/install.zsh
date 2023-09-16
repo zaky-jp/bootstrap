@@ -127,4 +127,6 @@ lxc config set core.https_address "[::]:443"
 cat "${PLAYGROUND_DIR}/ubuntu/cloud-init/minimal.user-data.yaml" | lxc profile set "$LXD_PROFILE" cloud-init.user-data -
 
 # add ubuntu-minimal as upstream
-lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases
+if [[ $(lxc remote list -f json | jq -r 'has("ubuntu-minimal")') == false ]]; then
+  lxc remote add --protocol simplestreams ubuntu-minimal https://cloud-images.ubuntu.com/minimal/releases
+fi
