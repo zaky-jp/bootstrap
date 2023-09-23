@@ -50,10 +50,12 @@ fi
 ## outcome: init.lua symlinked under $NVIM_CONFIG
 safe_symlink "${PLAYGROUND_DIR}/neovim/init.lua" "${NVIM_CONFIG}/init.lua"
 
-## 5. [if ubuntu] configuring update-alternatives
+## 5. installing packages
+## outcome: neovim packages installed
+nvim --headless "+JetpackSync" "+qa"
+
+## 6. [if ubuntu] configuring update-alternatives
 ## outcome: update-alternative sets neovim as first choice editor
-
-
 if [[ "$RUNOS" == "ubuntu" ]]; then
   local NVIM_PATH="/snap/nvim/current/usr/bin/nvim" # hardcoded
   if [[ ! -x "${NVIM_PATH}" ]]; then
