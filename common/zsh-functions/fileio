@@ -16,6 +16,15 @@ function backup() {
   fi
 }
 
+function safe_mkdir() {
+  local dir=$1
+
+  # create destination dir if not exist
+  if [[ ! -d $dir ]]; then
+    mkdir -p $dir
+  fi
+}
+
 function safe_symlink() {
   if [[ $# != 2 ]]; then
     log_warn "safe_symlink: not enough argument given"

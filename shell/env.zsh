@@ -69,6 +69,12 @@ if [[ $RUNOS == "ubuntu" ]]; then
   export NEEDRESTART=a # supress restart message
 fi
 
+
+if [[ -d "${XDG_DATA_HOME}/volta" ]]; then
+  export VOLTA_HOME="${XDG_DATA_HOME}/volta"
+  append_path "${VOLTA_HOME}/bin"
+fi
+
 ## gibo
 if (( ${+commands[gibo]} )); then
   export GIBO_BOILERPLATES="${XDG_DATA_HOME}/gibo"
