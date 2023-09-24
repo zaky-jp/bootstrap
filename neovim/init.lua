@@ -186,20 +186,32 @@ p:push {'hrsh7th/nvim-cmp', -- completion engine
 }
 -- ## diagnostics / lsp
 -- ### util functions
-local lsp_langs = {
-  'bashls',
-  'golangci_lint_ls',
-  'lua_ls',
-  'vimls',
+local lsp_langs = {}
+local add_lsp = function(lsp)
+  for _, value in ipairs(lsp) do
+    table.insert(lsp_langs, value)
+  end
+end
+if is_true(vim.fn.executable('node')) then -- require node.js
+  add_lsp({
+    'lua_ls',
+    'bashls',
+    'vimls',
+    'dockerls', -- Dockerfile
+    'docker_compose_language_service', -- Docker compose
+    'yamlls' -- YAML
+  })
+end
+if is_true(vim.fn.executable('go')) then -- require go
+  add_lsp('golangci_lint_ls')
+end
+add_lsp({
   -- containers
-  'dockerls', -- Dockerfile
-  'docker_compose_language_service', -- Docker compose
   'helm_ls', -- helm
   -- plain text files
   'taplo', -- TOML
   'marksman', -- Markdown
-  'yamlls', -- YAML
-}
+})
 local default_handlers = function(server_name)
   require('lspconfig')[server_name].setup{
     capabilities = require('cmp_nvim_lsp').default_capabilities()
