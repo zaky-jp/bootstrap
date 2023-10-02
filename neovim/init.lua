@@ -203,7 +203,7 @@ if is_true(vim.fn.executable('node')) then -- require node.js
   })
 end
 if is_true(vim.fn.executable('go')) then -- require go
-  add_lsp('golangci_lint_ls')
+  add_lsp({'golangci_lint_ls'})
 end
 add_lsp({
   -- containers
