@@ -1,0 +1,28 @@
+# overwrite own definition
+function log() {
+  command log "$@"
+}
+
+# run once upon initilisation
+function log.notice(){
+  log._print "\n%F{green}$*%f"
+}
+function log.info(){
+  local log_indent="==> "
+  log._print "${log_indent}$*"
+}
+function log.warn(){
+  log._error "%F{red}$*%f"
+}
+function log.fatal(){
+  log._error "%F{red}$*%f"
+  exit 1
+}
+# pseudo-private, as all functions are public in zsh
+function log._print(){
+  print -P "$*"
+}
+function log._error() {
+  print -P "$*" 1>&2
+}
+# vim: se filetype=zsh:

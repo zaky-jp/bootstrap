@@ -1,0 +1,55 @@
+require cmd 'brew'
+# overwrite own definition
+function brew() {
+  local brew_user="homebrew"
+  local verb=$1
+  if (dscl . -list /Users | grep -q "${brew_user}"); then
+    # it is always good to specify full path when switching to root user so that sudoers can be configured properly
+    sudo -u $brew_user -- "${commands[brew]}" "$@"
+  else
+    brew "$@"
+  fi
+  # may not work if option is set before verb
+  case $verb in
+    'install')
+      brew._update_info_cache
+      brew._process_cache
+      ;;
+    'update')
+      brew._update_info_cache
+      brew._process_cache
+      ;;
+  esac
+}
+
+# define private functions
+function brew._update_info_cache() {
+  path.do_mkdir "${XDG_CACHE_HOME}}"
+  log.info "generating brew info cache..."
+  brew info --installed --json=v2 > "${XDG_CACHE_HOME}/brew.json"
+}
+
+function brew._process_cache() {
+  local brew_json="${XDG_CACHE_HOME}/brew.json"
+  typeset -gA brews=()
+  typeset -gA casks=()
+  brews+=($(jq -j '[.formulae[] | [.name, .installed[0].version] | join(" ")] | join(" ")' "${brew_json}"))
+  casks+=($(jq -j '[.casks[] | [.token, .version] | join(" ")] | join(" ")' "${brew_json}"))
+}
+
+# begin module initilisation
+require 'util/log'
+require 'util/path'
+require cmd 'jq'
+
+# create cache file if not exist
+if ! path.exist "${XDG_CACHE_HOME}/brew.json"; then
+  brew._update_info_cache
+fi
+
+# save arrays if not loaded
+if ! [[ -v brews || -v casks ]]; then
+  brew._process_cache
+fi
+
+# vim: se filetype=zsh:

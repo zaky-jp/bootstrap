@@ -1,0 +1,32 @@
+# log
+function log_notice() {
+  log.notice "$*"
+}
+function log_info() {
+  log.info "$*"
+}
+function log_fatal() {
+  log.fatal "$*"
+}
+function log_warn() {
+  log.warn "$*"
+}
+
+# file
+function get_absolute_path() {
+  path.get_absolute "$@"
+}
+function get_dirname() {
+  path.get_dirname "$@"
+}
+function backup() {
+  path.do_backup "$@" && path.do_rm "$@"
+}
+function safe_mkdir() {
+  path.do_mkdir "$@"
+}
+function safe_symlink() {
+  path.do_symlink "$@"
+}
+
+# vim: se filetype=zsh:

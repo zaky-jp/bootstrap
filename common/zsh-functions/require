@@ -1,0 +1,73 @@
+# overwrite own definition
+function require() {
+  local verb=$1
+  case $verb in
+    'common')
+      shift
+      require._common "$@"
+      ;;
+    'cmd')
+      shift
+      require._cmd "$@"
+      ;;
+    'brew')
+      shift
+      require._brew "$@"
+      ;;
+    'cask')
+      shift
+      require._cask "$@"
+      ;;
+    *)
+      require._common "$@"
+      ;;
+  esac
+}
+# `autoload -Uz require && require` will execute below initialisation
+# public
+
+# pseudo-private
+function require._common() {
+  local mod_name=$1
+  local mod_elements=("${(s:/:)1}") # create array split by '/'
+  local func_name="${mod_elements[${#mod_elements}]}" # get last element
+  if (( ${+functions[${func_name}]} )); then
+    return 0
+  else
+    autoload -Uz "${PLAYGROUND_DIR}/common/zsh-functions/${mod_name}"
+    eval "${func_name}"
+  fi
+}
+
+function require._cmd() {
+  local cmd_name=$1
+  if (( ${+commands[${cmd_name}]} )); then
+    return 0
+  else
+    echo "cmd \`${cmd_name}\` not found" 1>&2
+    return 1
+  fi
+}
+
+function require._brew() {
+  require 'pkg/brew'
+  local pkg_name=$1
+  if (( ${+brews[${pkg_name}]} )); then
+    return 0
+  else
+    echo "brew formula \`${pkg_name}\` not found" 1>&2
+    return 1
+  fi
+}
+
+function require._cask() {
+  require 'pkg/brew'
+  local pkg_name=$1
+  if (( ${+casks[${pkg_name}]} )); then
+    return 0
+  else
+    echo "brew cask \`${pkg_name}\` not found" 1>&2
+    return 1
+  fi
+}
+# vim: filetype=zsh:

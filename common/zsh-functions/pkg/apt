@@ -1,0 +1,62 @@
+require cmd 'apt-get'
+# overwrite own definition
+function apt() {
+  local verb=$1
+  sudo "${commands[apt]}" "$@"
+  case $verb in
+    'install')
+      apt._update_info_cache
+      apt._process_cache
+      ;;
+    'upgrade')
+      apt._update_info_cache
+      apt._process_cache
+      ;;
+  esac
+}
+
+# define public functions
+## overwrite apt-get to add 'hook'
+function apt-get() {
+  local verb=$1
+  sudo "${commands[apt-get]}" "$@"
+  case $verb in
+    'install')
+      apt._update_info_cache
+      apt._process_cache
+      ;;
+    'upgrade')
+      apt._update_info_cache
+      apt._process_cache
+      ;;
+  esac
+}
+
+# define private functions
+function apt._update_info_cache() {
+  path.do_mkdir "${XDG_CACHE_HOME}}"
+  log.info "generating apt info cache..."
+  dpkg-query --show -f '{"name":"${Package}","version":"${Version}","status":"${Status}"}\n' | \
+    jq -r 'select(.status=="install ok installed")' > "${XDG_CACHE_HOME}/apt.json"
+}
+
+function apt._process_cache() {
+  typeset -gA apts=()
+  apts+=($(jq -j '[[.name, .version] | join(" ")] | join(" ")' "${XDG_CACHE_HOME}/apt.json"))
+}
+
+# function initilisation
+require 'util/log'
+require 'util/path'
+require cmd 'jq'
+
+# create cache file if not exist
+if ! path.exist "${XDG_CACHE_HOME}/apt.json"; then
+  apt._update_info_cache
+fi
+
+# save arrays if not loaded
+if ! [[ -v apts ]]; then
+  apt._process_cache
+fi
+# vim: se filetype=zsh:

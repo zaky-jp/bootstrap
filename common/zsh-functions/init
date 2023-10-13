@@ -1,12 +1,11 @@
-() {
-  emulate -L zsh -o extended_glob
-  local f
-  for f in ${PLAYGROUND_DIR}/common/zsh-functions/*(.); do
-    [[ $f == *init ]] && continue
-    echo "loading ${f}"
-    source "${f}"
-  done
-}
-test_constant
+# for backward compatibility
+autoload -Uz "${PLAYGROUND_DIR}/common/zsh-functions/require" && require
+require 'util/log'
+require 'util/path'
+require 'pkg/brew'
+#require 'pkg/apt'
+#require 'pkg/snap'
+require test
+require 'util/compatible'
 
-# vim: filetype=zsh:
+# vim: se filetype=zsh:

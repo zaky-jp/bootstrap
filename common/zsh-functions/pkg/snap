@@ -1,0 +1,25 @@
+# snap
+if (( ${+commands[snap]} )); then
+  typeset -gA snap_list
+  export snap_json="${XDG_CACHE_HOME}/snap.json"
+  function snap() {
+    sudo "${commands[snap]}" "$@"
+  }
+
+  function _snap_list_cache() {
+    log_info "generating snap list..."
+    sudo curl -sS --unix-socket /run/snapd.socket http://localhost/v2/snaps | tee "${snap_json}" >/dev/null
+    _snap_list_update
+  }
+
+  function _snap_list_update() {
+    snap_list=($(cat "$snap_json" | jq -r '.result[] | .name, .version'))
+  }
+
+  if [[ ! -e "${snap_json}" ]]; then
+    _snap_list_cache
+  fi
+  _snap_list_update
+fi
+
+# vim: se filetype=zsh:
