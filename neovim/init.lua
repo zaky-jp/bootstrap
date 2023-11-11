@@ -478,11 +478,7 @@ p:push {'mvllow/modes.nvim', -- line decoration
 }
 p:push {'lukas-reineke/indent-blankline.nvim', -- indent line
   config = function()
-    require('indent_blankline').setup {
-      show_end_of_line = true,
-      show_current_context = true,
-      show_current_context_start = true,
-    }
+    require('ibl').setup {}
   end,
 }
 p:push {'luochen1990/rainbow', -- rainbow parentheses
