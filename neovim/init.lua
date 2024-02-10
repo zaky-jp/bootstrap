@@ -12,6 +12,7 @@ local is_true = function(v)
 end
 
 -- # native config
+if not vim.g.vscode then
 -- ## editor
 -- ### tabstop
 vim.opt.tabstop = 2
@@ -63,6 +64,7 @@ vim.opt.clipboard = 'unnamedplus'
 vim.opt.autochdir = true
 -- ### how many lines to expect for modelines
 vim.opt.modelines = 3
+end
 
 -- # package manager
 -- ## load package manager
