@@ -44,7 +44,7 @@ function hardcode_zdotdir() {
 }
 
 function symlink_to_zdotdir() {
-  [[ -d "${ZDOTDIR}" ]] || { echo "error: ZDOTDIR is not a directory."; exit 1;}
+  [[ -d "${ZDOTDIR}" ]] || { echo "error: ZDOTDIR is not a directory."; exit 1; }
   local target="${ZDOTDIR}/$1"
   local source="$2"
 
@@ -67,7 +67,7 @@ function source() {
 
 # @run
 source "${PLAYGROUND_DIR}/shell/dotfiles/env.zsh"
-source "${zsh_libs[echo_enhance]}"
+source "${zsh_libs[echo]}"
 # ensure variables are set
 (( ${+ZDOTDIR} )) || { echo "error: ZDOTDIR is not set."; exit 1; }
 (( ${+zsh_files[env]} )) || { echo "error: zsh_files[env] is not set."; exit 1; }
