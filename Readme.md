@@ -2,15 +2,19 @@
 All-in-one environment setup tools.
 
 ## TL;DR
-### Linux
 ```sh
 curl -sSfL 'https://raw.githubusercontent.com/zaky-jp/playground/main/setup.sh' | bash
 ```
-### macOS
-```sh
-curl -sSfL 'https://raw.githubusercontent.com/zaky-jp/playground/main/setup.sh' | zsh
+
+## How it works
 ```
-macOS is not shipped with bash >=4.0, so `setup.sh` works both on `bash` and `zsh`.
+setup.sh --> setup.zsh --> shell/configure.zsh --> ${RUNOS}/init.zsh -> ...
+```
+1. `setup.sh` ensure `zsh` is installed
+2. `setup.zsh` clones this directory and prepare submodules
+3. `shell/configure.zsh` fires necessary configurations for `zsh` to work
+3. `${RUNOS}/init.zsh` is called for setup
+
 # Concept
 A mixture of *dotfiles*, *IaC*, personal utilities... that can be cloned and run across different environments: regardless of the machine types, whether it's a laptop, a server, or even insider a container.
 
@@ -24,8 +28,8 @@ A mixture of *dotfiles*, *IaC*, personal utilities... that can be cloned and run
 
 # A set of rules
 ## shellscript
-Any script to run before installing `zsh` should assume `bash` compatibility, with `.sh` extension.
-Otherwise, scripts should assume `zsh` compatibility, with `.zsh` extension.
+Always use zsh;
+Bash is only used to install zsh to the system.
 
 Scripts should *always* call ```set -eu``` to ensure it fails if anything goes wrong.
 
