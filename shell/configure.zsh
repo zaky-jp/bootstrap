@@ -20,7 +20,13 @@ zsh_dotfiles[.zprofile]="${PLAYGROUND_DIR}/shell/dotfiles/profile.zsh"
 # @output status code
 function check_zdotdir_hardcoded() {
   local cmd='export ZDOTDIR=$HOME/.config/zsh'
-  grep -s "${cmd}" "${zsh_files[env]}"
+  grep -q "${cmd}" "${zsh_files[env]}"
+  return $?
+}
+
+function check_echo_override_hardcoded() {
+  local cmd='function echo() {'
+  grep -q "${cmd}" "${zsh_files[env]}"
   return $?
 }
 
@@ -38,9 +44,17 @@ function create_zdotdir() {
 function hardcode_zdotdir() {
   echo "info: hardcoding ZDOTDIR path..."
   local cmd='export ZDOTDIR=$HOME/.config/zsh'
-  echo "debug: adding $cmd to ${zsh_files[env]}"
+  echo 'debug: adding $cmd to '"${zsh_files[env]}"
   echo "info: requesting sudo privilege to write to system files"
-  echo $cmd | sudo tee -a "${zsh_files[env]}" >/dev/null
+  builtin echo $cmd | sudo tee -a "${zsh_files[env]}" >/dev/null
+}
+
+function hardcode_echo_override() {
+  echo "info: hardcoding echo override..."
+  local echo_lib_path="${PLAYGROUND_DIR}/shell/lib/echo.env.zsh"
+  echo "debug: adding content of ${echo_lib_path} to '${zsh_files[env]}'"
+  echo "info: requesting sudo privilege to write to system files"
+  cat "$echo_lib_path" | sudo tee -a "${zsh_files[env]}" >/dev/null
 }
 
 function symlink_to_zdotdir() {
@@ -57,17 +71,8 @@ function symlink_to_zdotdir() {
 }
 # @end
 
-# @override source command
-function source() {
-  path=$1
-  echo "debug: sourcing from ${path:r}"
-  builtin source "$path"
-}
-# @end
-
 # @run
-source "${PLAYGROUND_DIR}/shell/dotfiles/env.zsh"
-source "${zsh_libs[echo]}"
+(( ${+ZDOTDIR} )) || source "${PLAYGROUND_DIR}/shell/dotfiles/env.zsh"
 # ensure variables are set
 (( ${+ZDOTDIR} )) || { echo "error: ZDOTDIR is not set."; exit 1; }
 (( ${+zsh_files[env]} )) || { echo "error: zsh_files[env] is not set."; exit 1; }
@@ -80,6 +85,13 @@ if check_zdotdir_hardcoded; then
   echo "debug: ZDOTDIR path is already hardcoded."
 else
   hardcode_zdotdir
+fi
+
+# 'echo' function to be hardcoded to avoid flooding with debug message
+if check_echo_override_hardcoded; then
+  echo "debug: echo override is already hardcoded."
+else
+  hardcode_echo_override
 fi
 
 # symlink dotfiles

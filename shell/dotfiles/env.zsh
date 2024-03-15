@@ -1,6 +1,3 @@
-# skip fast if already loaded
-(( ${ENV_LOADED} )) && return 0
-
 # @define fundamental variables
 # XDG-related
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
@@ -16,51 +13,20 @@ export ZDOTDIR="${ZDOTDIR:-${XDG_CONFIG_HOME}/zsh}"
 
 # @override echo to output to stderr
 # @output stderr
-function echo() {
-  builtin echo "$@" >&2
-}
-
+if ! (( $+functions[echo] )); then
+  function echo() {
+    builtin echo "$@" >&2
+  }
+fi
 # @end
+
 # @define store variables
 (( ${#zsh_files} )) || typeset -Ag zsh_files 
 (( ${#zsh_libs} )) || typeset -Ag zsh_libs 
+# @end
 
 # @define variable store functions
 # @output variables modified
-function zsh_libs.push() {
-  # fail fast
-  if ! (( ${+zsh_libs} )); then
-    echo "error: zsh_libs is not set."
-    return 1
-  fi
-
- # parse
-  local lib_name
-  local lib_path
-  case $# in
-    1) 
-      lib_path=$1
-      lib_name=${lib_path:t:r}
-      ;;
-    2)
-      lib_name=$1
-      lib_path=$2
-      ;;
-    *)
-      echo "error: invalid number of arguments."
-      return 1
-      ;;
-  esac
-
-  echo "debug: adding $lib_name to zsh_libs"
-
-  if [[ -e $lib_path ]]; then
-    zsh_libs[${lib_name}]="${lib_path}"
-  else
-    echo "debug: $lib_path does not exist. skipping..."
-  fi
-}
-
 function zsh_files.push() {
   # fail fast
   if ! (( ${+zsh_files} )); then
@@ -93,6 +59,40 @@ function zsh_files.push() {
   fi
 }
 
+function zsh_libs.push() {
+  # fail fast
+  if ! (( ${+zsh_libs} )); then
+    echo "error: zsh_libs is not set."
+    return 1
+  fi
+
+ # parse
+  local lib_name
+  local lib_path
+  case $# in
+    1) 
+      lib_path=$1
+      lib_name=${lib_path:t:r:r} # expects xxx.env.zsh
+      ;;
+    2)
+      lib_name=$1
+      lib_path=$2
+      ;;
+    *)
+      echo "error: invalid number of arguments."
+      return 1
+      ;;
+  esac
+
+  if (( ${+zsh_libs[${lib_name}]} )); then
+    echo "debug: ${lib_name} already exists. skipping..."
+  elif [[ -e $lib_path ]]; then
+    zsh_libs[${lib_name}]="${lib_path}"
+  else
+    echo "debug: $lib_path does not exist. skipping..."
+  fi
+}
+
 # @define get functions
 function get_zshenv() {
   local -a zshenv_path
@@ -120,7 +120,7 @@ zsh_files.push 'env' "$(get_zshenv)"
 # add zshlib file paths
 () {
   emulate -L zsh -o extended_glob
-  for f in "${zsh_files[lib]}"/*; do
+  for f in "${zsh_files[lib]}"/*.env.zsh; do
     zsh_libs.push "${f:a}"
   done
 }
@@ -132,7 +132,6 @@ zsh_libs.push '1password' "${XDG_CONFIG_HOME}/1password/env.zsh"
 
 # source zsh_libs
 source "${zsh_libs[source]}" # prioritise
-source "${zsh_libs[echo]}" # prioritise
 for lib in ${(k)zsh_libs}; do
   if [[ $lib == 'source' ]] || [[ $lib == 'echo' ]]; then
     continue
@@ -146,7 +145,5 @@ LANG="en_US.UTF-8"
 
 # path configuration
 path.push "${XDG_BIN_HOME}"
-typeset -Ug path
-
-ENV_LOADED=1
+path.clean
 # @end

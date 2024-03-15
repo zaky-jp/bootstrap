@@ -15,13 +15,6 @@ esac
 alias ls="ls ${_ls_args} ${_ls_colour}"
 alias lsl="ls -l ${_ls_args} ${_ls_colour}"
 
-## brew
-if (( $+commands[brew] )); then
-  function brew() {
-    sudo -u homebrew -- "${commands[brew]}" "$@"
-  }
-fi
-
 ## vim
 if (( $+commands[vimr] )); then
   alias gv=vimr
@@ -36,10 +29,7 @@ alias gp="git push"
 alias gd="git diff"
 alias gds="git diff --staged"
 
-## apt
-if (( $+commands[apt] )); then
-  alias apt="$_sudo $commands[apt]"
-fi
+
 
 ## container
 if (( $+commands[lima])); then
