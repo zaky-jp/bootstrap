@@ -61,6 +61,7 @@ fi
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/p10k/powerlevel10k.zsh-theme"
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/p10k.zsh"
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/alias.zsh"
+zsh_rcs.push "${PLAYGROUND_DIR}/alacritty/alacritty.rc.zsh"
 
 # source zsh_rcs
 for rc in ${(k)zsh_rcs}; do
