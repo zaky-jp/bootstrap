@@ -132,6 +132,7 @@ zsh_libs.push '1password' "${XDG_CONFIG_HOME}/1password/env.zsh"
 
 # source zsh_libs
 source "${zsh_libs[source]}" # prioritise
+source "${zsh_libs[echo]}" # prioritise
 for lib in ${(k)zsh_libs}; do
   if [[ $lib == 'source' ]] || [[ $lib == 'echo' ]]; then
     continue

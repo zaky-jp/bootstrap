@@ -16,7 +16,7 @@ function check_histfile_writable() {
 # @output file changes
 function create_histfile() {
   (( ${+HISTFILE} )) || { echo 'error: HISTFILE is not set.'; return 1; }
-  if [[ -d "${HISTFILE:h}" ]];
+  if [[ -d "${HISTFILE:h}" ]]; then
     mkdir -p "${HISTFILE:h}" 
   fi
   touch ${HISTFILE}
@@ -40,7 +40,7 @@ function set_history_write_options() {
   setopt hist_expire_dups_first # need $histsize > $savehist
 }
 
-function set_history_read_options() {}
+function set_history_read_options() {
   setopt hist_lex_words # shell-like whitespace handling
   setopt hist_verify # safe paste; do not execute the command directly
   setopt hist_find_no_dups

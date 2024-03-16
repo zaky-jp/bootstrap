@@ -39,10 +39,11 @@ function zsh_rcs.push() {
 }
 
 function generate_comp_cache() {
-  [[ ${ZDOTDIR}/.zcompdump.zwc -nt ${ZDOTDIR}/.zcompdump ]] || zcompile -R -- ${ZDOTDIR}/.zcompdump{.zwc,}
+  local compdump="${ZDOTDIR}/.zcompdump"
+  if ! [[ -r "$compdump".zwc ]] || [[ "$compdump" -nt "$compdump".zwc ]]; then
+    zcompile -R ${compdump}{.zwc,}
+  fi
 }
-
-
 
 # @run
 # use powerlevel10k instant prompt (should source first)
@@ -57,7 +58,9 @@ fi
     zsh_rcs.push "${f:a}"
   done
 }
+zsh_rcs.push "${PLAYGROUND_DIR}/shell/p10k/powerlevel10k.zsh-theme"
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/p10k.zsh"
+zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/alias.zsh"
 
 # source zsh_rcs
 for rc in ${(k)zsh_rcs}; do
@@ -68,6 +71,5 @@ done
 fpath.push "${HOMEBREW_PREFIX}/share/zsh/site-functions"
 fpath.clean
 autoload -Uz compinit && compinit -u
-#generate_comp_cache
-
+generate_comp_cache
 # @end
