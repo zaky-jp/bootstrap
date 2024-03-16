@@ -33,7 +33,7 @@ function check_sparsecheckout_status() {
 # @define perform functions
 # @output file changes
 function clone_playground_repo() {
-  git clone --recurse-submodules "https://github.com/${PLAYGROUND_REPO}.git" "${PLAYGROUND_DIR}"
+  git clone --recurse-submodules --shallow-submodules "https://github.com/${PLAYGROUND_REPO}.git" "${PLAYGROUND_DIR}"
 }
 
 function apply_sparse_checkout() {
@@ -49,7 +49,7 @@ function fetch_playground_repo() {
 }
 
 function update_submodules() {
-  git submodule update --remote --recursive
+  git submodule update --remote --recursive --depth=1
 }
 
 # @run

@@ -19,13 +19,13 @@ zsh_dotfiles[.zprofile]="${PLAYGROUND_DIR}/shell/dotfiles/profile.zsh"
 # @define check functions
 # @output status code
 function check_zdotdir_hardcoded() {
-  local cmd='export ZDOTDIR=$HOME/.config/zsh'
+  local cmd='export ZDOTDIR="$HOME/.config/zsh"'
   grep -q "${cmd}" "${zsh_files[env]}"
   return $?
 }
 
 function check_echo_override_hardcoded() {
-  local cmd='function echo() {'
+  local cmd='source "$HOME/playground/shell/lib/echo.env.zsh"'
   grep -q "${cmd}" "${zsh_files[env]}"
   return $?
 }
@@ -51,8 +51,10 @@ function hardcode_zdotdir() {
 
 function hardcode_echo_override() {
   echo "info: hardcoding echo override..."
-  local echo_lib_path="${PLAYGROUND_DIR}/shell/lib/echo.env.zsh"
-  echo "debug: adding content of ${echo_lib_path} to '${zsh_files[env]}'"
+  local cmd='if [[ -r "$HOME/playground/shell/lib/echo.env.zsh" ]]; then'"\n"
+  cmd+='  source "$HOME/playground/shell/lib/echo.env.zsh"'"\n"
+  cmd+='fi"${PLAYGROUND_DIR}/shell/lib/echo.env.zsh"'
+  echo "debug: adding source to echo.env.zsh to '${zsh_files[env]}'"
   echo "info: requesting sudo privilege to write to system files"
   cat "$echo_lib_path" | sudo tee -a "${zsh_files[env]}" >/dev/null
 }
