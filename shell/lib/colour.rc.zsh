@@ -1,3 +1,3 @@
-if [[ $TERM_PROGRAM == "vscode" ]] | [[ $TERM == "alacritty" ]]; then
+if [[ $TERM_PROGRAM == "vscode" ]]; then
   export COLORTERM=truecolor
 fi

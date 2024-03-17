@@ -1,3 +1,5 @@
+#log_level[debug]=1 #enable debug
+#typeset -g ECHO_SHOW_CALLER=1 #enable debug
 # @define fundamental variables
 # XDG-related
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-${HOME}/.config}"
@@ -124,11 +126,12 @@ zsh_files.push 'env' "$(get_zshenv)"
     zsh_libs.push "${f:a}"
   done
 }
-zsh_libs.push 'brew' "${XDG_CONFIG_HOME}/brew/env.zsh"
-zsh_libs.push 'volta' "${XDG_CONFIG_HOME}/volta/env.zsh"
-zsh_libs.push 'gibo' "${XDG_CONFIG_HOME}/gibo/env.zsh"
-zsh_libs.push 'nvim' "${XDG_CONFIG_HOME}/nvim/env.zsh"
-zsh_libs.push '1password' "${XDG_CONFIG_HOME}/1password/env.zsh"
+() {
+  emulate -L zsh -o extended_glob -o nonomatch
+  for f in "${XDG_CONFIG_HOME}"/*/env.zsh; do
+    zsh_libs.push "${f:a:h:t}" "${f:a}"
+  done
+}
 
 # source zsh_libs
 source "${zsh_libs[source]}" # prioritise

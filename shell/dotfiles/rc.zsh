@@ -58,10 +58,15 @@ fi
     zsh_rcs.push "${f:a}"
   done
 }
+() {
+  emulate -L zsh -o extended_glob -o nonomatch
+  for f in "${XDG_CONFIG_HOME}"/*/rc.zsh; do
+    zsh_rcs.push "${f:a:h:t}" "${f:a}"
+  done
+}
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/p10k/powerlevel10k.zsh-theme"
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/p10k.zsh"
 zsh_rcs.push "${PLAYGROUND_DIR}/shell/dotfiles/alias.zsh"
-zsh_rcs.push "${PLAYGROUND_DIR}/alacritty/alacritty.rc.zsh"
 
 # source zsh_rcs
 for rc in ${(k)zsh_rcs}; do

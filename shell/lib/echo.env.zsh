@@ -1,7 +1,9 @@
 setopt prompt_subst
 
 # @define environment variables
-export ECHO_FD=${ECHO_FD:-2}
+typeset -g ECHO_FD=${ECHO_FD:-2}
+typeset -g ECHO_TRAIL=${ECHO_TRAIL:-"*"}
+typeset -g ECHO_SHOW_CALLER=${ECHO_SHOW_CALLER:-0}
 # @end
 
 # @define default log levels anc colours
@@ -15,7 +17,7 @@ fi
 
 if ! (( ${+log_colours} )); then
   typeset -Ag log_colours
-  log_colours[debug]='grey'
+  log_colours[debug]='black'
   log_colours[info]='green'
   log_colours[warning]='yellow'
   log_colours[error]='red'
@@ -39,7 +41,27 @@ function echo() {
     else
       caller=${funcstack[1]}
     fi
-    print -P "%B%F{$log_colours[$level]}${level}:%f%b[${caller}] $msg" >&${ECHO_FD}
+    
+    {
+      if [[ $level == "info" || $level == "error" ]]; then
+        print -Pn "%B%F{$log_colours[$level]}${ECHO_TRAIL}"
+      elif [[ $level == "warning" ]]; then
+        print -Pn "%F{$log_colours[$level]}"
+        printf '%*s' $(( ${#ECHO_TRAIL}+1 ))""
+      else
+        printf '%*s' $(( ${#ECHO_TRAIL}+1 )) ""
+      fi
+      print -Pn " ${msg}%f"
+
+      if [[ $level == "info" || $level == "error" ]]; then
+        print -Pn "%b"
+      fi
+
+      if (( ${ECHO_SHOW_CALLER} )); then
+       print -Pn " %F{black}[@${caller}]%f"
+      fi
+      print -P
+    } >&${ECHO_FD}
   else
     builtin echo $@
   fi
