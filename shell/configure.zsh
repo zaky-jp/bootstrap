@@ -56,7 +56,7 @@ function hardcode_echo_override() {
   cmd+='fi"${PLAYGROUND_DIR}/shell/lib/echo.env.zsh"'
   echo "debug: adding source to echo.env.zsh to '${zsh_files[env]}'"
   echo "info: requesting sudo privilege to write to system files"
-  cat "$echo_lib_path" | sudo tee -a "${zsh_files[env]}" >/dev/null
+  builtin echo $cmd | sudo tee -a "${zsh_files[env]}" >/dev/null
 }
 
 function symlink_to_zdotdir() {
