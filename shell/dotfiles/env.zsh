@@ -23,8 +23,8 @@ fi
 # @end
 
 # @define store variables
-(( ${#zsh_files} )) || typeset -Ag zsh_files 
-(( ${#zsh_libs} )) || typeset -Ag zsh_libs 
+(( ${#zsh_files} )) || typeset -Ag zsh_files
+(( ${#zsh_libs} )) || typeset -Ag zsh_libs
 # @end
 
 # @define variable store functions
@@ -40,7 +40,7 @@ function zsh_files.push() {
   local key
   local file_path
   case $# in
-    1) 
+    1)
       file_path=$1
       key=${file_path:t:r}
       ;;
@@ -72,7 +72,7 @@ function zsh_libs.push() {
   local lib_name
   local lib_path
   case $# in
-    1) 
+    1)
       lib_path=$1
       lib_name=${lib_path:t:r:r} # expects xxx.env.zsh
       ;;
@@ -132,6 +132,7 @@ zsh_files.push 'env' "$(get_zshenv)"
     zsh_libs.push "${f:a:h:t}" "${f:a}"
   done
 }
+zsh_libs.push 'brew' "${XDG_CONFIG_HOME}/brew/shellenv.zsh"
 
 # source zsh_libs
 source "${zsh_libs[source]}" # prioritise
