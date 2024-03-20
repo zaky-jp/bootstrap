@@ -76,6 +76,15 @@ function symlink_alacritty_configuration() {
   done
 }
 
+function rm_old_configuration() {
+  local old_config="${ALACRITTY_HOME}/alacritty.yml"
+
+  if check_file_exist $old_config; then
+    echo "warning: obsolete config detected. removing."
+    rm "${ALACRITTY_HOME}/alacritty.yml"
+  fi
+}
+
 # @run
 echo "info: start installing alacritty..."
 echo "info: installing terminfo..."
@@ -91,5 +100,6 @@ case $RUNOS in
     ;;
 esac
 echo "info: configuring alacritty..."
+rm_old_configuration
 symlink_alacritty_configuration
 # @end
