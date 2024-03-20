@@ -68,6 +68,11 @@ else
   clone_playground_repo
 fi
 
+echo "info: fetching all submodules"
+fetch_playground_repo
+echo "info: updating all submodules"
+update_submodules
+
 for submodule in ${(k)submodule_wanted_files}; do
   if ! check_sparsecheckout_status "${submodule}"; then
     echo "info: applying sparsecheckout for ${submodule}..."
@@ -77,9 +82,5 @@ for submodule in ${(k)submodule_wanted_files}; do
   fi
 done
 
-echo "info: fetching all submodules"
-fetch_playground_repo
-echo "info: updating all submodules"
-update_submodules
 
 zsh "${PLAYGROUND_DIR}/shell/configure.zsh"
