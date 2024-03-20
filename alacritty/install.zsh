@@ -71,7 +71,7 @@ function symlink_alacritty_configuration() {
       echo "warning: $target already exists."
       continue
     fi
-    echo "info: creating symlink for ${target}"
+    echo "debug: creating symlink for ${target}"
     ln -s "${alacritty_config[$target]}" "${ALACRITTY_HOME}/${target}"
   done
 }

@@ -11,9 +11,11 @@ submodule_wanted_files[neovim/jetpack]='plugin/jetpack.vim'
 
 # @override echo to output to stderr
 # @output stderr
-function echo() {
-  builtin echo "$@" >&2
-}
+if ! (( ${+functions[echo]} )); then
+  function echo() {
+    builtin echo "$@" >&2
+  }
+fi
 # @end
 
 # @define check functions
@@ -40,16 +42,16 @@ function apply_sparse_checkout() {
   local submodule_name=$1
   local target_files=$2
   git -C "${PLAYGROUND_DIR}/${submodule_name}" config core.sparsecheckout true
-  echo "${target_files}" | tee "${PLAYGROUND_DIR}/.git/modules/${submodule_name}/info/sparse-checkout" >/dev/null
+  builtin echo "${target_files}" | tee "${PLAYGROUND_DIR}/.git/modules/${submodule_name}/info/sparse-checkout" >/dev/null
   git -C "${PLAYGROUND_DIR}/${submodule_name}" read-tree -mu HEAD 
 }
 
 function fetch_playground_repo() {
-  git fetch --all --recurse-submodules
+  git -C "${PLAYGROUND_DIR}" fetch --all --recurse-submodules
 }
 
 function update_submodules() {
-  git submodule update --remote --recursive --depth=1
+  git -C "${PLAYGROUND_DIR}" submodule update --init --recursive --recommend-shallow --depth 1
 }
 
 # @run
@@ -75,7 +77,9 @@ for submodule in ${(k)submodule_wanted_files}; do
   fi
 done
 
+echo "info: fetching all submodules"
 fetch_playground_repo
+echo "info: updating all submodules"
 update_submodules
 
 zsh "${PLAYGROUND_DIR}/shell/configure.zsh"
