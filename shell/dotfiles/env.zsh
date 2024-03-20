@@ -23,8 +23,8 @@ fi
 # @end
 
 # @define store variables
-(( ${#zsh_files} )) || typeset -Ag zsh_files
-(( ${#zsh_libs} )) || typeset -Ag zsh_libs
+(( ${+zsh_files} )) || typeset -Ag zsh_files
+(( ${+zsh_libs} )) || typeset -Ag zsh_libs
 # @end
 
 # @define variable store functions
@@ -132,7 +132,7 @@ zsh_files.push 'env' "$(get_zshenv)"
     zsh_libs.push "${f:a:h:t}" "${f:a}"
   done
 }
-zsh_libs.push 'brew' "${XDG_CONFIG_HOME}/brew/shellenv.zsh"
+zsh_libs.push 'brewpath' "${XDG_CONFIG_HOME}/brew/shellenv.zsh"
 
 # source zsh_libs
 source "${zsh_libs[source]}" # prioritise

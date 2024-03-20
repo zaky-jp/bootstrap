@@ -34,15 +34,13 @@ function check_echo_override_hardcoded() {
 # @output file changes
 function create_zdotdir() {
   if [[ -d "${ZDOTDIR}" ]]; then
-    echo "debug: ZDOTDIR already exists. skipping..."
+    echo "warning: ZDOTDIR already exists. skipping..."
   else
-    echo "info: creating ZDOTDIR..."
     mkdir -p "${ZDOTDIR}"
   fi
 }
 
 function hardcode_zdotdir() {
-  echo "info: hardcoding ZDOTDIR path..."
   local cmd='export ZDOTDIR=$HOME/.config/zsh'
   echo 'debug: adding $cmd to '"${zsh_files[env]}"
   echo "info: requesting sudo privilege to write to system files"
@@ -50,7 +48,6 @@ function hardcode_zdotdir() {
 }
 
 function hardcode_echo_override() {
-  echo "info: hardcoding echo override..."
   local cmd='if [[ -r "$HOME/playground/shell/lib/echo.env.zsh" ]]; then'"\n"
   cmd+='  source "$HOME/playground/shell/lib/echo.env.zsh"'"\n"
   cmd+='fi"${PLAYGROUND_DIR}/shell/lib/echo.env.zsh"'
@@ -65,7 +62,7 @@ function symlink_to_zdotdir() {
   local source="$2"
 
   if [[ -e "${target}" ]] || [[ -h "${target}" ]]; then # macos needs -h to follow symlink
-    echo "debug: ${target} already exists. skipping..."
+    echo "warning: ${target} already exists. skipping..."
   else
     echo "info: symlinking ${source:t}"
     ln -s "${source}" "${target}"
@@ -74,29 +71,33 @@ function symlink_to_zdotdir() {
 # @end
 
 # @run
-(( ${+ZDOTDIR} )) || source "${PLAYGROUND_DIR}/shell/dotfiles/env.zsh"
+(( ${+zsh_files[env]} )) || source "${PLAYGROUND_DIR}/shell/dotfiles/env.zsh"
 # ensure variables are set
 (( ${+ZDOTDIR} )) || { echo "error: ZDOTDIR is not set."; exit 1; }
 (( ${+zsh_files[env]} )) || { echo "error: zsh_files[env] is not set."; exit 1; }
 
 # prepare zdotdir
+echo "info: creating ZDOTDIR..."
 create_zdotdir
 
 # 'ZDOTDIR' has to be hardcoded to system/zshenv file 
+echo "info: hardcoding ZDOTDIR path to ${zsh_files[env]}"
 if check_zdotdir_hardcoded; then
-  echo "debug: ZDOTDIR path is already hardcoded."
+  echo "warning: ZDOTDIR path is already hardcoded."
 else
   hardcode_zdotdir
 fi
 
 # 'echo' function to be hardcoded to avoid flooding with debug message
+echo "info: hardcoding echo override to ${zsh_files[env]}"
 if check_echo_override_hardcoded; then
-  echo "debug: echo override is already hardcoded."
+  echo "warning: echo override is already hardcoded."
 else
   hardcode_echo_override
 fi
 
 # symlink dotfiles
+echo "info: symlinking dotfiles from playground"
 for key in ${(k)zsh_dotfiles}; do
   symlink_to_zdotdir "${key}" "${zsh_dotfiles[${key}]}"
 done
