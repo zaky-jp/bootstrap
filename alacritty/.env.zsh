@@ -4,8 +4,8 @@
 # @end
 
 # @define environment variables
-typeset -g ALACRITTY_HOME="${XDG_CONFIG_HOME}/alacritty"
-typeset -gA alacritty_config
+typeset -x ALACRITTY_HOME="${XDG_CONFIG_HOME}/alacritty"
+typeset -xA alacritty_config
 alacritty_config[alacritty.toml]="${PLAYGROUND_DIR}/alacritty/alacritty.toml"
 alacritty_config[hints.toml]="${PLAYGROUND_DIR}/alacritty/${RUNOS}/hints.toml"
 alacritty_config[shell.toml]="${PLAYGROUND_DIR}/alacritty/${RUNOS}/shell.toml.${RUNARCH}"

@@ -8,8 +8,8 @@ if ! (( ${+commands[git]} )); then
 fi
 
 # @define environment variables
-(( ${+PLAYGROUND_REPO} )) || typeset -g PLAYGROUND_REPO="zaky-jp/playground"
-(( ${+PLAYGROUND_DIR} )) || typeset -g PLAYGROUND_DIR="${HOME}/playground"
+(( ${+PLAYGROUND_REPO} )) || typeset -x PLAYGROUND_REPO="zaky-jp/playground"
+(( ${+PLAYGROUND_DIR} )) || typeset -x PLAYGROUND_DIR="${HOME}/playground"
 # @end
 
 # @override echo to output to stderr

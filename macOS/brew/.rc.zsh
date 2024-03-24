@@ -22,12 +22,12 @@ function generate_shellenv() {
 }
 
 function generate_formulae_cache() {
-	builtin echo "typeset -ga formulae" | tee "${brew_cache[formulae]}" >/dev/null
+	builtin echo "typeset -xa formulae" | tee "${brew_cache[formulae]}" >/dev/null
 	builtin echo "formulae=(${(f)$(brew list --formulae --full-name -1)})" | tee -a "${brew_cache[formulae]}" >/dev/null
 }
 
 function generate_cask_cache() {
-	builtin echo "typeset -ga casks" | tee "${brew_cache[casks]}" >/dev/null
+	builtin echo "typeset -xa casks" | tee "${brew_cache[casks]}" >/dev/null
 	builtin echo "casks=(${(f)$(brew list --cask --full-name -1)})" | tee -a "${brew_cache[casks]}" >/dev/null
 }
 # @end

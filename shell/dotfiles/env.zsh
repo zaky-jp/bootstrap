@@ -23,8 +23,8 @@ fi
 # @end
 
 # @define store variables
-(( ${+zsh_files} )) || typeset -Ag zsh_files
-(( ${+zsh_libs} )) || typeset -Ag zsh_libs
+(( ${+zsh_files} )) || typeset -Ax zsh_files
+(( ${+zsh_libs} )) || typeset -Ax zsh_libs
 # @end
 
 # @define variable store functions

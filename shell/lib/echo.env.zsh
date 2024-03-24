@@ -1,22 +1,24 @@
 setopt prompt_subst
 
 # @define environment variables
-typeset -g ECHO_FD=${ECHO_FD:-2}
-typeset -g ECHO_TRAIL=${ECHO_TRAIL:-"*"}
-typeset -g ECHO_SHOW_CALLER=${ECHO_SHOW_CALLER:-0}
+typeset -x ECHO_FD=${ECHO_FD:-2}
+typeset -x ECHO_TRAIL=${ECHO_TRAIL:-"*"}
+typeset -x ECHO_SHOW_CALLER=${ECHO_SHOW_CALLER:-0}
 # @end
 
 # @define default log levels anc colours
 if ! (( ${+log_level} )); then
-  typeset -Ag log_level
-  log_level[debug]=0
+  typeset -Ax log_level
+	log_level[trace]=0
+  log_level[debug]=1
   log_level[info]=1
   log_level[warning]=1
   log_level[error]=1
-fi 
+fi
 
 if ! (( ${+log_colours} )); then
-  typeset -Ag log_colours
+  typeset -Ax log_colours
+	log_colours[trace]='black'
   log_colours[debug]='black'
   log_colours[info]='green'
   log_colours[warning]='yellow'
@@ -41,7 +43,7 @@ function echo() {
     else
       caller=${funcstack[1]}
     fi
-    
+
     {
       if [[ $level == "info" || $level == "error" ]]; then
         print -Pn "%B%F{$log_colours[$level]}${ECHO_TRAIL}"
