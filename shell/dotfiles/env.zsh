@@ -15,11 +15,12 @@ export ZDOTDIR="${ZDOTDIR:-${XDG_CONFIG_HOME}/zsh}"
 
 # @override echo to output to stderr
 # @output stderr
-if ! (( $+functions[echo] )); then
+if ! (( ${+functions[echo]} )); then
   function echo() {
     builtin echo "$@" >&2
   }
 fi
+(( ${+log_level} )) && log_level[debug]=0 #supress debug message
 # @end
 
 # @define store variables
@@ -95,6 +96,40 @@ function zsh_libs.push() {
   fi
 }
 
+function zsh_lazy.push() {
+	 # fail fast
+  if ! (( ${+zsh_lazy} )); then
+    echo "error: zsh_lazy is not set."
+    return 1
+  fi
+
+ # parse
+  local lib_name
+  local lib_path
+  case $# in
+    1)
+      lib_path=$1
+      lib_name=${lib_path:t:r:r} # expects xxx.env.zsh
+      ;;
+    2)
+      lib_name=$1
+      lib_path=$2
+      ;;
+    *)
+      echo "error: invalid number of arguments."
+      return 1
+      ;;
+  esac
+
+  if (( ${+zsh_lazy[${lib_name}]} )); then
+    echo "warning: ${lib_name} already exists. skipping..."
+  elif [[ -e $lib_path ]]; then
+    zsh_lazy[${lib_name}]="${lib_path}"
+  else
+    echo "trace: $lib_path does not exist. skipping..."
+  fi
+}
+
 # @define get functions
 function get_zshenv() {
   local -a zshenv_path
@@ -107,10 +142,6 @@ function get_zshenv() {
       break
     fi
   done
-}
-
-function zsh_lazy.push() {
-	aaray.push_path $zsh_lazy $@ # assume arraypush.env.zsh is sourced
 }
 
 # @configure echo

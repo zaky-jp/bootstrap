@@ -78,4 +78,6 @@ done
 fpath.clean
 autoload -Uz compinit && compinit -u
 generate_comp_cache
+
+(( ${+log_level} )) && log_level[debug]=1 #enable debug message
 # @end
