@@ -57,7 +57,7 @@ function zsh_files.push() {
   if [[ -e $file_path ]]; then
     zsh_files[${key}]="${file_path}"
   else
-    echo "debug: $file_path does not exist. skipping..."
+    echo "warning: $file_path does not exist. skipping..."
   fi
 }
 
@@ -87,11 +87,11 @@ function zsh_libs.push() {
   esac
 
   if (( ${+zsh_libs[${lib_name}]} )); then
-    echo "debug: ${lib_name} already exists. skipping..."
+    echo "warning: ${lib_name} already exists. skipping..."
   elif [[ -e $lib_path ]]; then
     zsh_libs[${lib_name}]="${lib_path}"
   else
-    echo "debug: $lib_path does not exist. skipping..."
+    echo "trace: $lib_path does not exist. skipping..."
   fi
 }
 
@@ -107,6 +107,10 @@ function get_zshenv() {
       break
     fi
   done
+}
+
+function zsh_lazy.push() {
+	aaray.push_path $zsh_lazy $@ # assume arraypush.env.zsh is sourced
 }
 
 # @configure echo
@@ -135,6 +139,7 @@ zsh_files.push 'env' "$(get_zshenv)"
 zsh_libs.push 'brewpath' "${XDG_CONFIG_HOME}/brew/shellenv.zsh"
 
 # source zsh_libs
+typeset -Ax zsh_lazy # source after other files have sourced
 source "${zsh_libs[source]}" # prioritise
 source "${zsh_libs[echo]}" # prioritise
 for lib in ${(k)zsh_libs}; do
@@ -142,6 +147,10 @@ for lib in ${(k)zsh_libs}; do
     continue
   fi
   source "${zsh_libs[${lib}]}"
+done
+
+for lib in ${(k)zsh_lazy}; do
+  source "${zsh_lazy[${lib}]}"
 done
 
 # misc actions

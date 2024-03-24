@@ -15,7 +15,7 @@ function zsh_rcs.push() {
   local rc_name
   local rc_path
   case $# in
-    1) 
+    1)
       rc_path=$1
       rc_name=${rc_path:t:r:r} # expects xxx.rc.zsh
       ;;
@@ -30,11 +30,11 @@ function zsh_rcs.push() {
   esac
 
   if (( ${+zsh_rcs[${rc_name}]} )); then
-    echo "debug: ${rc_name} already exists. skipping..."
+    echo "warning: ${rc_name} already exists. skipping..."
   elif [[ -e $rc_path ]]; then
     zsh_rcs[${rc_name}]="${rc_path}"
   else
-    echo "debug: $rc_path does not exist. skipping..."
+    echo "trace: $rc_path does not exist. skipping..."
   fi
 }
 
@@ -74,7 +74,7 @@ for rc in ${(k)zsh_rcs}; do
 done
 
 # completion
-fpath.push "${HOMEBREW_PREFIX}/share/zsh/site-functions"
+(( $+commands[brew] )) && fpath.push "${HOMEBREW_PREFIX}/share/zsh/site-functions"
 fpath.clean
 autoload -Uz compinit && compinit -u
 generate_comp_cache

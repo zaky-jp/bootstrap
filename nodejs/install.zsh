@@ -1,30 +1,27 @@
 #!/usr/bin/env zsh
 set -eu
+(( ${+PLAYGROUND_DIR} )) || { echo "error: PLAYGROUND_DIR is not set."; exit 1; }
 
-## 0. source common functions
-## outcome: $PLAYGROUND_DIR/common/zsh-functions/ sourced
-if [[ ! -d "${PLAYGROUND_DIR}" ]]; then
-  echo "\$PLAYGROUND_DIR do not exist. aborting..." 2>&1
-  exit 1
-fi
-source "${PLAYGROUND_DIR}/common/zsh-functions/init"
+# @define environment variables
+source "${PLAYGROUND_DIR}/nodejs/.env.zsh"
+# @end
 
-## 1. initialisation
-## outcome: VOLTA_HOME configured
-export VOLTA_HOME="${XDG_DATA_HOME}/volta/"
+# @define check function
+function volta_exist() {
+	(( ${+commands[volta]} ))
+	return $?
+}
 
-## 1. install volta from helper sh
-log_notice "Installing volta..."
-if ! test_command volta; then
-  safe_mkdir "$VOLTA_HOME"
-  export PATH="${VOLTA_HOME}/bin":"$PATH"
-  curl -fsSL https://get.volta.sh | bash -x -s -- --skip-setup
-fi
+# @define install function
+function install_volta() {
+	if volta_exist; then
+		echo "warning: volta is already installed."
+		return
+	fi
 
-## 2. install latest node and npm
-log_notice "Installing node..."
-if volta list node --format plain | grep -q 'runtime'; then
-  log_info 'node already installed.'
-else
-  volta install node
-fi
+	curl -fsSL https://get.volta.sh | bash -s -- --skip-setup
+}
+
+# @run
+echo "info: installing volta..."
+install_volta

@@ -6,7 +6,7 @@ function path.push() {
     echo "debug: adding '$new_path' to \path"
     path=($new_path $path)
   else
-    echo "debug: $new_path does not exist. skipping..."
+    echo "trace: $new_path does not exist. skipping..."
   fi
 }
 
@@ -20,7 +20,7 @@ function fpath.push() {
     echo "debug: adding '$new_path' to fpath"
     fpath=($new_path $fpath)
   else
-    echo "debug: $new_path does not exist. skipping..."
+    echo "trace: $new_path does not exist. skipping..."
   fi
 }
 
@@ -34,7 +34,7 @@ function manpath.push() {
     echo "debug: adding '$new_path' to manpath"
     manpath=($new_path $manpath)
   else
-    echo "debug: $new_path does not exist. skipping..."
+    echo "trace: $new_path does not exist. skipping..."
   fi
 }
 
