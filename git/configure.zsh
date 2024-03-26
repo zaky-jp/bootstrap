@@ -1,11 +1,11 @@
 #!/usr/bin/env zsh
 set -eu
+(( ${+PLAYGROUND_DIR} )) || { echo "error: PLAYGROUND_DIR is not defined."; exit 2; }
 
 # @fail fast
-(( ${+PLAYGROUND_DIR} )) || { echo "error: PLAYGROUND_DIR is not defined." && exit 2; }
 case $RUNOS in
   macos)
-    (( ${+commands[brew]} )) || { echo "error: homebrew is not found. aborting..."; exit 1; } ;;
+		fail_unless_command_exists "brew"
   ubuntu)
     ;;
   *)
