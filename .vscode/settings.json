@@ -1,0 +1,21 @@
+{
+	// font
+	"editor.fontFamily": "'SF Mono Square', Menlo, Monaco, 'Courier New', monospace",
+	"editor.fontSize": 20,
+	"terminal.integrated.fontSize": 20,
+	// lint and format
+	"editor.formatOnSave": true,
+	"editor.formatOnPaste": true,
+	"editor.formatOnType": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[shellscript]": {
+		"editor.defaultFormatter": "EditorConfig.EditorConfig"
+	},
+	// language detection and schemas
+	"files.associations": {
+		"*.zfunc": "shellscript"
+	}
+}
