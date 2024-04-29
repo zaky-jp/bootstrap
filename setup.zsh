@@ -9,7 +9,7 @@ fi
 
 # @define environment variables
 (( ${+PLAYGROUND_REPO} )) || typeset -x PLAYGROUND_REPO="zaky-jp/playground"
-(( ${+PLAYGROUND_DIR} )) || typeset -x PLAYGROUND_DIR="${HOME}/playground"
+(( ${+PLAYGROUND_DIR} )) || typeset -x PLAYGROUND_DIR="${HOME}/Development/playground"
 # @end
 
 # @override echo to output to stderr
@@ -60,10 +60,14 @@ function update_submodules() {
 # @end
 
 # @run
+mkdir -p ~/Development
 echo "info: cloning ${PLAYGROUND_REPO} to ${PLAYGROUND_DIR}..."; {
 	clone_playground
 	fetch_playground_repo
 	update_submodules
 }
+
+echo "info: linking editorconfig..."
+ln -s "${PLAYGROUND_DIR}/.editorconfig" "${HOME}/Development/.editorconfig"
 
 zsh "${PLAYGROUND_DIR}/shell/configure.zsh"

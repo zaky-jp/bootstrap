@@ -1,5 +1,5 @@
 import = [
-  "~/playground/alacritty/config/dracula/dracula.toml", # hardcoding required
+  "~/Development/playground/alacritty/config/dracula/dracula.toml", # hardcoding required
   "~/.config/alacritty/shell.toml", # symbolic link to appropriate shell
   "~/.config/alacritty/hints.toml", # os-specific command to open links
 ]
