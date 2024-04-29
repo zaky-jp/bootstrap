@@ -6,6 +6,7 @@ set -eu
 case $RUNOS in
   macos)
 		fail_unless_command_exists "brew"
+		;;
   ubuntu)
     ;;
   *)

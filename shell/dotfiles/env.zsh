@@ -8,7 +8,7 @@ export XDG_DATA_HOME="${XDG_DATA_HOME:-${HOME}/.local/share}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-${HOME}/.run}"
 export XDG_BIN_HOME="${XDG_BIN_HOME:-${HOME}/.local/bin}"
 # playground
-export PLAYGROUND_DIR="${PLAYGROUND_DIR:-${HOME}/playground}"
+export PLAYGROUND_DIR="${PLAYGROUND_DIR:-${HOME}/Development/playground}"
 # ZDOTDIR
 export ZDOTDIR="${ZDOTDIR:-${XDG_CONFIG_HOME}/zsh}"
 # @end
