@@ -13,3 +13,6 @@
 [submodule "alacritty/config/dracula"]
 	path = alacritty/config/dracula
 	url = https://github.com/dracula/alacritty.git
+[submodule "shell/lib/zsh-autocomplete"]
+	path = shell/lib/zsh-autocomplete
+	url = https://github.com/marlonrichert/zsh-autocomplete.git
