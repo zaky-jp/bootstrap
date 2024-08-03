@@ -3,6 +3,7 @@
 		"**/Makefile*": "makefile"
 	},
 	"conventionalCommits.scopes": [
+		"cspell",
 		"docker"
 	]
 }

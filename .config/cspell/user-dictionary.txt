@@ -1,0 +1,5 @@
+nvim
+qcow
+stylelint
+virt
+zaky

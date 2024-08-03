@@ -1,5 +1,7 @@
 {
   "devDependencies": {
+    "@cspell/dict-docker": "^1.1.7",
+    "@cspell/dict-makefile": "^1.0.0",
     "prettier": "^3.2.5",
     "prettier-plugin-sh": "^0.14.0"
   }
