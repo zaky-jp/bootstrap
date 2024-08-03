@@ -52,6 +52,7 @@ if [[ -r "${XDG_CACHE_HOME}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
 fi
 
 # add zshrc file paths
+zsh_rcs.push "${PLAYGROUND_DIR}/shell/lib/zsh-autocomplete/zsh-autocomplete.plugin/zsh"
 () {
   emulate -L zsh -o extended_glob
   for f in "${zsh_files[lib]}"/*.rc.zsh; do
@@ -74,9 +75,12 @@ for rc in ${(k)zsh_rcs}; do
 done
 
 # completion
-(( $+commands[brew] )) && fpath.push "${HOMEBREW_PREFIX}/share/zsh/site-functions"
+(( $+commands[brew] )) && {
+	fpath.push "${HOMEBREW_PREFIX}/share/zsh/site-functions"
+	fpath.push "${HOMEBREW_PREFIX}/share/zsh-completions"
+}
 fpath.clean
-autoload -Uz compinit && compinit -u
+# autoload -Uz compinit && compinit -u ## conflict with autocomplete.zsh
 generate_comp_cache
 
 (( ${+log_level} )) && log_level[debug]=1 #enable debug message

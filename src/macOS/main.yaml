@@ -1,0 +1,16 @@
+---
+- name: Install homebrew
+  hosts: localhost
+  become: false
+  collections:
+    - geerlingguy.mac
+  roles:
+    - elliotweiser.osx-command-line-tools
+    - role: geerlingguy.mac.homebrew
+      tags: ["homebrew"]
+  tasks:
+    - name: Install homebrew
+      homebrew_installed_packages: []
+- name: Install Virt-Manager
+  hosts: localhost
+  become: true

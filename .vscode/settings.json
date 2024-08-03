@@ -1,16 +1,8 @@
 {
-  // lint and format
-  "[shellscript]": {
-    "editor.defaultFormatter": "EditorConfig.EditorConfig"
-  },
-  // language detection and schemas
-  "files.associations": {
-    "*.zfunc": "shellscript"
-  },
-  "yaml.schemas": {
-    "https://raw.githubusercontent.com/canonical/cloud-init/main/cloudinit/config/schemas/versions.schema.cloud-config.json": "ubuntu/cloud-init/*.yaml",
-    "https://raw.githubusercontent.com/zaky-jp/autoinstall-config-schema/main/schema.autoinstall.json": "ubuntu/autoinstall/*.yaml"
-  },
-  "cSpell.words": ["autoinstall", "ethernets"],
-  "prettier.prettierPath": "./node_modules/prettier/"
+	"files.associations": {
+		"**/Makefile*": "makefile"
+	},
+	"conventionalCommits.scopes": [
+		"docker"
+	]
 }

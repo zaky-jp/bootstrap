@@ -5,7 +5,7 @@ set -eu
 if ! (( ${+PLAYGROUND_DIR} )); then
   echo 'error: $PLAYGROUND_DIR is not set'
   exit 1
-fi 
+fi
 # @end
 
 # @define dotfile assets
@@ -80,7 +80,7 @@ function symlink_to_zdotdir() {
 echo "info: creating ZDOTDIR..."
 create_zdotdir
 
-# 'ZDOTDIR' has to be hardcoded to system/zshenv file 
+# 'ZDOTDIR' has to be hardcoded to system/zshenv file
 echo "info: hardcoding ZDOTDIR path to ${zsh_files[env]}"
 if check_zdotdir_hardcoded; then
   echo "warning: ZDOTDIR path is already hardcoded."
@@ -95,6 +95,8 @@ if check_echo_override_hardcoded; then
 else
   hardcode_echo_override
 fi
+
+# TODO: for macOS, modify /etc/zprofile to remove path_helper
 
 # symlink dotfiles
 echo "info: symlinking dotfiles from playground"

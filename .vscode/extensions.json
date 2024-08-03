@@ -1,15 +1,9 @@
 {
-	"recommendations": [
-		// themes
-		"dracula-theme.theme-dracula",
-		"bierner.github-markdown-preview",
-		// enrich editor
-		"EditorConfig.EditorConfig",
-		"esbenp.prettier-vscode",
-		"mhutchie.git-graph",
-		"chrislajoie.vscode-modelines",
-		// copilot
-		"GitHub.copilot",
-		"GitHub.copilot-chat"
-	]
+  "recommendations": [
+    "cocopon.iceberg-theme",
+    "bierner.github-markdown-preview",
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    "chrislajoie.vscode-modelines",
+  ]
 }

@@ -31,8 +31,8 @@ fi
 ## 3. copying configuration files
 ## outcome: config files copied to ${BYOBU_CONFIG}
 log_info "backing up current config"
-backup "${BYOBU_CONFIG}/status"
-backup "${BYOBU_CONFIG}/.tmux.conf"
+#backup "${BYOBU_CONFIG}/status"
+#backup "${BYOBU_CONFIG}/.tmux.conf"
 
 log_info "copying PLAYGROUND config"
 mkdir -p "${BYOBU_CONFIG}"

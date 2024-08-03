@@ -10,7 +10,7 @@ typeset -x ECHO_SHOW_CALLER=${ECHO_SHOW_CALLER:-0}
 if ! (( ${+log_level} )); then
   typeset -Ax log_level
 	log_level[trace]=0
-  log_level[debug]=1
+  log_level[debug]=0
   log_level[info]=1
   log_level[warning]=1
   log_level[error]=1
