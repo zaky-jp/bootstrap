@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+start_printing_bold() {
+	printf '\e[1m'
+}
+
+print_in_colour() {
+	local colour="${1}"; shift
+	case "${colour}" in
+		black) printf '\e[30m%s\e[0m' "$*" ;;
+		red) printf '\e[31m%s\e[0m' "$*" ;;
+		green) printf '\e[32m%s\e[0m' "$*" ;;
+		yellow) printf '\e[33m%s\e[0m' "$*" ;;
+		blue) printf '\e[34m%s\e[0m' "$*" ;;
+		magenta) printf '\e[35m%s\e[0m' "$*" ;;
+		cyan) printf '\e[36m%s\e[0m' "$*" ;;
+		white) printf '\e[37m%s\e[0m' "$*" ;;
+	esac
+}
+
+print_log(){
+	local log_level="${1}"; shift
+	# output to stderr
+	{
+		case "${log_level}" in
+			DEBUG) printf "\t"; print_in_colour black "$*" ;;
+			INFO) start_printing_bold; print_in_colour green '[INFO]'; printf "\t"; print_in_colour green "$*" ;;
+			WARN) start_printing_bold; print_in_colour yellow '[WARN]'; printf "\t"; print_in_colour yellow "$*" ;;
+			ERROR) start_printing_bold; print_in_colour red '[ERRO]'; printf "\t"; print_in_colour red "$*" ;;
+		esac
+		echo
+	} 1>&2
+}
+
+print_log "$@"
