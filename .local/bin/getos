@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# @define [string] functions
+lowercase() {
+	str="$*"
+	echo "${str,,}" # bash builtin substituting `tr '[:upper:]' '[:lower:]'``
+}
+
+# @define [info gathering] functions
+get_runos() {
+	if [[ -f /etc/lsb-release ]]; then
+		RUNOS="$(source /etc/lsb-release && lowercase ${DISTRIB_ID})"
+	elif [[ -f /etc/os-release ]]; then
+		RUNOS="$(source /etc/os-release && lowercase ${ID})"
+	elif (which -s sw_vers); then
+		RUNOS="$(lowercase $(sw_vers -productName))"
+	else
+		RUNOS="$(uname -s)"
+	fi
+}
+# @end
+
+# @run
+get_runos
+echo "${RUNOS}"
+# @end
