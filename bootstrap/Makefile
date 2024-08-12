@@ -4,7 +4,7 @@ export RUNOS ?= $(eval RUNOS := $(shell getos)) # set once if not already define
 all:
 	$(LOG) INFO "Bootstrapping $(RUNOS)"
 	@ $(MAKE) package-manager
-#@ $(MAKE) docker
+	@ $(MAKE) docker
 
 .PHONY: package-manager
 package-manager:

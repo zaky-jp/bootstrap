@@ -1,80 +1,81 @@
-# prerequisites
-REQUIRED_PACKAGES := lima docker docker-buildx docker-compose docker-credential-helper
-# vm configs
-LIMA_VM := docker
-# docker configs
-DOCKER_CONFIG := $(HOME)/.docker/config.json
-DOCKER_SOCKET = $(shell limactl list $(LIMA_VM) --format 'unix://{{.Dir}}/sock/docker.sock')
-DOCKER_CONTEXT := lima
-
-# @define install actions
-INSTALL_ACTIONS := install-prerequisites install-docker-config install-lima-vm install-docker-context
-.PHONY: install $(INSTALL_ACTIONS)
-install: $(INSTALL_ACTIONS);
-# @end
-
-# @define state files which inject and/or assume dependencies
-LIMA_VM_STATE := lima-$(LIMA_VM).lock
-DOCKER_CONTEXT_STATE := docker-context.lock
-
-install-prerequisites: $(PREREQUISITE_STATE);
-install-docker-config: $(DOCKER_CONFIG_STATE);
-install-lima-vm: $(LIMA_VM_STATE);
-install-docker-context: $(DOCKER_CONTEXT_STATE);
-# @end
-
-# @define actual actions per state file
-
-$(PREREQUISITE_STATE): | $(STATES_DIR)
-	@print_log INFO "Installing prerequisite packages..."
-	brew install --formulae $(REQUIRED_PACKAGES)
-	touch $@
-
-vpath config.json $(XDG_CONFIG_HOME)/docker
-config.json: | generate_config.sh
-	$(MKDIR) $(XDG_CONFIG_HOME)/docker
-	@print_log INFO "Generating docker config."
+# @build
+.PHONY: all test clean
+INTERMEDIATE_FILES := formulae_list.txt docker.config.json # define intermediate files
+## @all
+all: $(INTERMEDIATE_FILES) .gitignore;
+formulae_list.txt:
+	$(LOG) INFO "Generating brewed formulae list."
+	brew list --formulae -1 | tee $@ 1>/dev/null
+docker.config.json: generate_config.sh
+	$(LOG) INFO "Generating docker config."
 	$(CURDIR)/generate_config.sh | tee $@ 1>/dev/null
-
-$(DOCKER_CONFIG_STATE): $(LOCAL_CONFIG)
-	@print_log WARN "Will overwrite existing docker config."
-	rm $(DOCKER_CONFIG)
-	ln -s $(abspath $(LOCAL_CONFIG)) $(DOCKER_CONFIG)
-
-
-$(LIMA_VM_STATE): | $(PREREQUISITE_STATE)
-	@print_log INFO "Creating lima vm..."
-	limactl create --name=$(LIMA_VM) --tty=false template://docker
-	limactl edit $(LIMA_VM) --mount-writable --tty=false
-	touch $@
-
-$(DOCKER_CONTEXT_STATE): | $(LIMA_VM_STATE)
-	@print_log INFO "Creating docker context..."
-	docker context create $(DOCKER_CONTEXT) --docker "host=$(DOCKER_SOCKET)"
-	touch $@
+.gitignore: $(lastword $(MAKEFILE_LIST)) # auto-generate .gitignore
+	$(LOG) INFO "Generating .gitignore."
+	@echo $(INTERMEDIATE_FILES) | xargs -n 1 > $@
+## @end
+test:
+	$(LOG) WARN "Nothing to test."
+clean:
+	$(RM) $(INTERMEDIATE_FILES)
 # @end
 
-# @define other targets
+# @install
+LIMA_VM := docker
+.PHONY: install
+install: install-formulae.lock docker-config lima-$(LIMA_VM).lock docker-context;
 
-.PHONY: start
-start: | $(DOCKER_CONTEXT_STATE) ## start lima vm
-	limactl start $(LIMA_VM)
-	docker context use $(DOCKER_CONTEXT)
+# install prerequisite brew formulae
+FORMULAE_LIST := lima docker docker-buildx docker-compose docker-credential-helper
+formula_status = $(shell cat formulae_list.txt | grep $(strip $1))
+define install_formula
+  $(if $(call formula_status, $1),
+	$(LOG) DEBUG "$(strip $1) already installed.",
+	brew install --formulae $(strip $1)
+  )
+endef
+install-formulae.lock: | formulae_list.txt
+	$(LOG) INFO "Installing formulae..."
+	$(foreach f, $(FORMULAE_LIST), $(call install_formula, $f))
+	touch $@
 
-.PHONY: purge
-purge: ## purge existing environment including vms
-	limactl stop $(LIMA_VM) && limactl delete $(LIMA_VM) && rm $(LIMA_VM).lock
-	docker context rm $(DOCKER_CONTEXT) && rm context.lock
+# install docker config
+CONFIG_DEST := $(XDG_CONFIG_HOME)/docker/config.json
+.PHONY: docker-config
+docker-config: docker.config.json
+	$(LOG) INFO "Copying and symlinking docker config."
+	$(MKDIR) $(dir $(CONFIG_DEST))
+	$(CP) -f $(CURDIR)/docker.config.json $(CONFIG_DEST)
+	ln -sf $(CONFIG_DEST) $(HOME)/.docker/config.json
 
-.PHONY: uninstall
-uninstall: | purge ## uninstall installed formulae, with preceding purge
-	brew uninstall --formulae $(REQUIRED_PACKAGES)
+# install lima vm
+get_lima_vm = $(shell limactl list -q $1 2>/dev/null)
+lima-$(LIMA_VM).lock: | install-formulae.lock
+	$(LOG) INFO "Creating lima vm..."
+	$(if $(call get_lima_vm, $(LIMA_VM)),\
+	$(LOG) DEBUG "$(LIMA_VM) already exist.",\
+	limactl create --name=$(LIMA_VM) --tty=false template://docker; \
+	limactl edit $(LIMA_VM) --mount-writable --tty=false)
+	touch $@
 
-.PHONY: clean
-clean: ## clean platform dependent files
-	@print_log WARN "Deleting existing docker config."
-	[[ -f $(LOCAL_CONFIG) ]] && rm $(LOCAL_CONFIG) || true
+# create docker context
+DOCKER_CONTEXT := lima
+DOCKER_SOCKET = $(shell limactl list $(LIMA_VM) --format 'unix://{{.Dir}}/sock/docker.sock')
+get_docker_context = $(shell docker context ls -q | grep $(strip $1))
+.PHONY: docker-context
+docker-context: | lima-$(LIMA_VM).lock
+	$(LOG) INFO "Creating docker context..."
+	$(if $(call get_docker_context, $(DOCKER_CONTEXT)),\
+	$(LOG) DEBUG "$(DOCKER_CONTEXT) already exist", \
+	docker context create $(DOCKER_CONTEXT) --docker "host=$(DOCKER_SOCKET)")
+# @end
 
-.PHONY: all
-all: | clean install start;
+# @check / @installcheck
+.PHONY: check
+check: ## start lima vm
+	$(LOG) INFO "Starting lima vm."
+	$(if $(call get_lima_vm, $(LIMA_VM)), \
+	$(LOG) DEBUG "$(LIMA_VM) already running.", \
+	limactl start $(LIMA_VM))
+	$(LOG) INFO "Switching docker context."
+	@ docker context use $(DOCKER_CONTEXT)
 # @end
