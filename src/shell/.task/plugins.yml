@@ -1,0 +1,133 @@
+version: '3'
+vars:
+  PLUGIN_DIR: '{{joinPath .DATA_DIR "plugins"}}'
+  PLUGIN_ARTIFACT_FILE: './rc.d/plugins.zsh'
+  OHMYZSH_REPO: 'ohmyzsh/ohmyzsh'
+  # cspell: disable
+  plugins:
+    map:
+      {
+        'marlonrichert/zsh-autocomplete': 'zsh-autocomplete.plugin.zsh',
+        'romkatv/powerlevel10k': 'powerlevel10k.zsh-theme',
+        'zsh-users/zsh-syntax-highlighting': 'zsh-syntax-highlighting.zsh',
+      }
+  ohmyzsh-plugins:
+    map:
+      {
+        'plugins/shrink-path': 'shrink-path.plugin.zsh',
+        'plugins/globalias': 'globalias.plugin.zsh',
+      }
+  # cspell: enable
+
+tasks:
+  update:
+    # meta
+    desc: 'Update zsh plugins to latest'
+    summary: 'Pull zsh plugins from remotes'
+    # conditions
+    deps: [install]
+    # runner
+    cmds:
+      - for: {var: plugins}
+        task: :private:git-pull
+        vars:
+          LABEL: '{{.TASK}}/{{base .KEY}}'
+          TARGET_DIR: '{{joinPath .PLUGIN_DIR .KEY}}'
+      - task: :private:git-pull
+        vars:
+          LABEL: '{{.TASK}}/{{base .OHMYZSH_REPO}}'
+          TARGET_DIR: '{{joinPath .PLUGIN_DIR .OHMYZSH_REPO}}'
+
+  install:
+    # meta
+    desc: 'Install zsh plugins'
+    summary: 'Install zsh plugins from remotes'
+    # runner
+    cmds:
+      - task: install-plugins
+      - task: install-ohmyzsh
+
+  build-plugin-loader:
+    # meta
+    desc: 'Build zsh plugin loader'
+    summary: 'Create a plugin loader script for zsh'
+    aliases: [loader]
+    # conditions
+    preconditions:
+      - test -d './rc.d'
+    # runner
+    cmds:
+      - for: {var: plugins}
+        task: add_plugin
+        vars:
+          PLUGIN_FILE: '{{joinPath .PLUGIN_DIR .KEY .ITEM}}'
+          LABEL: '{{.TASK}}/{{base .KEY}}'
+      - for: {var: ohmyzsh-plugins}
+        task: add_plugin
+        vars:
+          PLUGIN_FILE: '{{joinPath .PLUGIN_DIR .OHMYZSH_REPO .KEY .ITEM}}'
+          LABEL: '{{.TASK}}/{{base .KEY}}'
+
+  add_plugin:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - PLUGIN_FILE
+        - LABEL
+    label: '{{.LABEL}}'
+    vars:
+      ADD_STATEMENT: 'source "{{.PLUGIN_FILE}}"'
+      REGEX: '^{{.ADD_STATEMENT}}$'
+    # conditions
+    status:
+      - test -e '{{.PLUGIN_ARTIFACT_FILE}}'
+      - grep -qE '{{.REGEX}}' '{{.PLUGIN_ARTIFACT_FILE}}'
+    # runner
+    cmds:
+      - echo '{{.ADD_STATEMENT}}' >> '{{.PLUGIN_ARTIFACT_FILE}}'
+
+  install-plugins:
+    # meta
+    desc: 'Install zsh plugins'
+    summary: 'Install zsh plugins from GitHub'
+    # runner
+    cmds:
+      - for: {var: plugins}
+        task: :private:gh-clone
+        vars:
+          LABEL: '{{.TASK}}/{{base .KEY}}'
+          GH_REPO: '{{.KEY}}'
+          BASE_DIR: '{{.PLUGIN_DIR}}'
+
+  install-ohmyzsh:
+    # meta
+    desc: 'Install ohmyzsh plugins'
+    summary: 'Install ohmyzsh plugins'
+    vars:
+      OHMYZSH_DIR: '{{joinPath .PLUGIN_DIR .OHMYZSH_REPO}}'
+    # conditions:
+    deps: [clone-ohmyzsh]
+    preconditions:
+      - test -d '{{.OHMYZSH_DIR}}'
+    # runner
+    cmds:
+      - for: {var: ohmyzsh-plugins}
+        task: :private:git-sparse-checkout
+        vars:
+          LABEL: '{{.TASK}}/{{base .KEY}}'
+          TARGET_DIR: '{{.OHMYZSH_DIR}}'
+          PATTERN: '{{.KEY}}'
+
+  clone-ohmyzsh:
+    # meta
+    desc: 'Clone ohmyzsh monorepo'
+    summary: 'Clone sparse-ly ohmyzsh monorepo'
+    # runner
+    cmds:
+      - task: :private:gh-clone
+        vars:
+          LABEL: '{{.TASK}}'
+          GH_REPO: '{{.OHMYZSH_REPO}}'
+          BASE_DIR: '{{.PLUGIN_DIR}}'
+          SPARSE: true

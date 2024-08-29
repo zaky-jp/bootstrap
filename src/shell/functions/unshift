@@ -1,0 +1,5 @@
+unshift() {
+	local array_name=$1
+	local new_item=$2
+	eval "${array_name}=(${new_item} ${(P)${array_name}})"
+}

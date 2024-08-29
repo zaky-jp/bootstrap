@@ -1,0 +1,46 @@
+version: '3'
+env:
+  XDG_CONFIG_HOME: '{{default .XDG_CONFIG_HOME (joinPath .HOME ".config")}}'
+  XDG_DATA_HOME: '{{default .XDG_DATA_HOME (joinPath .HOME ".local" "share")}}'
+vars:
+  CONFIG_DIR: '{{joinPath .XDG_CONFIG_HOME "zsh"}}'
+  DATA_DIR: '{{joinPath .XDG_DATA_HOME "zsh"}}'
+
+includes:
+  dotfiles:
+    taskfile: .task/dotfiles.yml
+    aliases: [dot]
+  etcfiles:
+    taskfile: .task/etcfiles.yml
+    aliases: [etc]
+  functions:
+    taskfile: .task/functions.yml
+    aliases: [func]
+  fragments:rc.d:
+    taskfile: .task/rc.d.yml
+    aliases: [frag:rc]
+  fragments:env.d:
+    taskfile: .task/env.d.yml
+    aliases: [frag:env]
+  plugins:
+    taskfile: .task/plugins.yml
+    aliases: [plug]
+  internal:
+    taskfile: .task/internal.yml
+    internal: true
+    aliases: [_, private]
+
+tasks:
+  bootstrap:
+    # meta
+    desc: 'Bootstrap zsh configurations'
+    summary: 'Create necessary directories and install configuration files, including fragments'
+    # runner
+    cmds:
+      - task: etcfiles:install
+      - task: dotfiles:install
+      - task: functions:install
+      - task: plugins:build-plugin-loader
+      - task: fragments:rc.d:install
+      - task: fragments:env.d:install
+      - task: plugins:update

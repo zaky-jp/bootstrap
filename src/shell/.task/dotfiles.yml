@@ -1,0 +1,35 @@
+version: '3'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create dotfiles directory'
+    summary: 'Create directory at $XDG_CONFIG_HOME/zsh' # hardcoded for bootstrapping
+    # conditions
+    run: once
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          LABEL: '{{.TASK}}'
+          TARGET: '{{.CONFIG_DIR}}'
+
+  install:
+    # meta
+    desc: 'Install dotfiles'
+    summary: 'Install .zshenv, .zprofile, and .zshrc from local sources'
+    vars:
+      DOTFILES:
+        map: {.zshenv: env.zsh, .zprofile: profile.zsh, .zshrc: rc.zsh}
+    # conditions
+    deps: [mkdir]
+    preconditions:
+      - test -d '{{.CONFIG_DIR}}'
+    # runner
+    cmds:
+      - for: {var: DOTFILES}
+        task: :private:cp
+        vars:
+          SOURCE: '{{.ITEM}}'
+          TARGET: '{{joinPath .CONFIG_DIR .KEY}}'
+          LABEL: '{{.TASK}}/{{.KEY}}'
