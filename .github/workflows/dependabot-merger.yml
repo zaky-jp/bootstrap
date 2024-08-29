@@ -1,0 +1,35 @@
+name: Dependabot Merger
+
+on:
+  pull_request_target:
+    branches: ["main"]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  dependabot-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2.2.0
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      - name: Approve a PR
+        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }} # do not approve major updates
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Instruct dependabot to squash & merge
+        if: ${{ steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major' }}
+        uses: mshick/add-pr-comment@v2
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          allow-repeats: true
+          message: squash and merge
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
