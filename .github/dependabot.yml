@@ -1,17 +1,16 @@
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "daily"
+      interval: 'daily'
     allow:
-      - dependency-type: "all"
-    rebase-strategy: "disabled"
+      - dependency-type: 'all'
+    rebase-strategy: 'disabled'
     groups:
       dependencies:
         patterns:
-          - "*"
-    target-branch: "v3"
+          - '*'
     commit-message:
-      prefix: "chore"
-      include: "scope"
+      prefix: 'chore'
+      include: 'scope'
