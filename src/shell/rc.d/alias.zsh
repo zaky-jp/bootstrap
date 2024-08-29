@@ -4,8 +4,16 @@ if (( $+commands[trash] )); then
 fi
 
 # ls
-alias ls="ls -aAF --color=auto"
-alias lsl="ls -aAFl@ --color=auto"
+case $RUNOS in
+  ubuntu|debian)
+	alias ls="ls -aFH --color=auto"
+	alias lsl="ls -alF -h --color=auto"
+	;;
+  macos)
+	alias ls="ls -aFH -1 --color=auto"
+	alias lsl="ls -alFH@ -h --color=auto"
+	;;
+esac
 
 # mv
 alias mv="mv -i"

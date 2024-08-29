@@ -1,0 +1,38 @@
+version: 3
+vars:
+  FUNC_DIR: '{{joinPath .DATA_DIR "functions"}}'
+  FUNC_ARTIFACT_DIR: './functions'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create zsh/functions directory'
+    summary: 'Create directory $XDG_DATA_HOME/zsh/functions'
+    # conditions
+    run: once
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          LABEL: '{{.TASK}}'
+          TARGET: '{{.FUNC_DIR}}'
+
+  install:
+    # meta
+    desc: 'Install functions'
+    summary: 'Install functions from local sources'
+    # conditions
+    deps: [mkdir]
+    preconditions:
+      - test -d '{{.FUNC_DIR}}'
+    sources:
+      - '{{.FUNC_ARTIFACT_DIR}}/*'
+      - exclude: '{{.FUNC_ARTIFACT_DIR}}/.*'
+    # runner
+    cmds:
+      - for: sources
+        task: :private:cp
+        vars:
+          SOURCE: '{{.ITEM}}'
+          TARGET: '{{.FUNC_DIR}}/'
+          LABEL: '{{.TASK}}/{{base .ITEM}}'

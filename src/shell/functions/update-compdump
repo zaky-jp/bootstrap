@@ -1,0 +1,6 @@
+update-compdump() {
+	local compdump="${ZDOTDIR}/.zcompdump"
+	if ! [[ -r "$compdump".zwc ]] || [[ "$compdump" -nt "$compdump".zwc ]]; then
+		zcompile -R ${compdump}{.zwc,}
+	fi
+}

@@ -1,0 +1,38 @@
+version: 3
+vars:
+  RC_DIR: '{{joinPath .CONFIG_DIR "rc.d"}}'
+  RC_ARTIFACT_DIR: './rc.d'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create zsh/rc.d directory'
+    summary: 'Create directory $XDG_CONFIG_HOME/zsh/rc.d'
+    # conditions
+    run: once
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          LABEL: '{{.TASK}}'
+          TARGET: '{{.RC_DIR}}'
+
+  install:
+    # meta
+    desc: 'Install env fragments'
+    summary: 'Install .zshenv fragments from local sources'
+    # conditions
+    deps: [mkdir]
+    preconditions:
+      - test -d '{{.RC_DIR}}'
+    sources:
+      - '{{.RC_ARTIFACT_DIR}}/*.zsh'
+      - exclude: '{{.RC_ARTIFACT_DIR}}/.*'
+    # runner
+    cmds:
+      - for: sources
+        task: :private:cp
+        vars:
+          SOURCE: '{{.ITEM}}'
+          TARGET: '{{.RC_DIR}}/'
+          LABEL: '{{.TASK}}/{{base .ITEM}}'
