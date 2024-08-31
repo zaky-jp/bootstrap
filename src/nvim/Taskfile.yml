@@ -1,0 +1,116 @@
+version: '3'
+env:
+  XDG_CONFIG_HOME: '{{default .XDG_CONFIG_HOME (joinPath .HOME ".config")}}'
+  XDG_DATA_HOME: '{{default .XDG_DATA_HOME (joinPath .HOME ".local" "share")}}'
+vars:
+  CONFIG_DIR: '{{joinPath .XDG_CONFIG_HOME "nvim"}}'
+  DATA_DIR: '{{joinPath .XDG_DATA_HOME "nvim" "site"}}'
+
+includes:
+  user-config:
+    taskfile: .task/user-config.yml
+    aliases: [conf]
+  plugin-manager:
+    taskfile: .task/plugin-manager.yml
+    aliases: [mgr]
+  lua-plugins:
+    taskfile: .task/lua-plugins.yml
+    aliases: [plug]
+  lua-modules:
+    taskfile: .task/lua-modules.yml
+    aliases: [mod]
+  private:
+    taskfile: ../go-task/internal.yml
+    internal: true
+    aliases: [_]
+
+tasks:
+  bootstrap:
+    # meta
+    desc: 'Bootstrap neovim configuration'
+    summary: 'Create necessary directories and install configuration files, plugins and lua modules'
+
+    # runner
+    cmds:
+      - task: install
+      - task: user-config:install
+      - task: plugin-manager:install
+      - task: lua-plugins:install
+      - task: lua-modules:install
+      - task: sync-plugins
+
+  install:
+    # meta
+    desc: 'Install neovim'
+    summary: 'Install neovim using appropriate package manager'
+
+    # conditions
+    run: once
+    status:
+      - which nvim
+    # runner
+    cmds:
+      - task: install-macos
+      - task: install-linux
+
+  install-macos:
+    # meta
+    internal: true
+
+    # conditions
+    platforms: [darwin]
+    preconditions:
+      - which brew
+
+    # runner
+    cmds:
+      - brew install neovim
+
+  install-linux:
+    # meta
+    internal: true
+
+    # conditions
+    platforms: [linux]
+    preconditions:
+      - which snap
+    cmds:
+      - sudo snap install nvim --classic
+      - task: update-alternatives
+
+  update-alternatives:
+    # meta
+    desc: 'Execute update-alternatives to prioritise neovim'
+    summary: 'Execute update-alternatives for editor, vim, vi, ex, view, and more'
+    vars:
+      NVIM_PATH: /snap/bin/nvim
+      TOOLS:
+        - editor
+        - vi
+        - vim
+
+    # conditions
+    run: once
+    platforms: [linux]
+    preconditions:
+      - test $(source /etc/os-release && echo $ID_like) == debian
+      - which update-alternatives
+
+    # runner
+    cmds:
+      - for: {var: TOOLS}
+        cmd: sudo update-alternatives --install $(which '{{.ITEM}}') {{.ITEM}} {{.NVIM_PATH}} 100
+      - for: {var: TOOLS}
+        cmd: sudo update-alternatives --set {{.ITEM}} {{.NVIM_PATH}}
+
+  sync-plugins:
+    # meta
+    desc: 'Sync plugins'
+    summary: 'Update plugins'
+
+    # conditions
+    run: once
+
+    # runner
+    cmds:
+      - nvim --headless "+JetpackSync" "+qa"

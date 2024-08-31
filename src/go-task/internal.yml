@@ -10,13 +10,30 @@ tasks:
     label: '{{.LABEL}}'
     # conditions
     run: when_changed
-    generates:
-      - '{{.TARGET}}'
+    preconditions:
+      - test ! -f {{.TARGET}}
+      - test ! -L {{.TARGET}}
     status:
       - test -d '{{.TARGET}}'
     # runner
     cmds:
       - mkdir -p '{{.TARGET}}'
+
+  download:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - URL
+        - FILE
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    status:
+      - test -f '{{.FILE}}'
+    # runner
+    cmds:
+      - curl -sSfL -o '{{.FILE}}' '{{.URL}}'
 
   install:
     # meta
@@ -28,12 +45,11 @@ tasks:
     label: '{{.LABEL}}'
     # conditions
     run: when_changed
-    sources:
-      - '{{.SOURCE}}'
-    generates:
-      - '{{.TARGET}}'
     preconditions:
       - test -d {{dir .TARGET}}
+      - test ! -L '{{.TARGET}}'
+    sources:
+      - '{{.SOURCE}}'
     # runner
     cmds:
       - sudo install {{with .MODE}}-m {{.MODE}}{{end}} '{{.SOURCE}}' '{{.TARGET}}'
@@ -46,13 +62,13 @@ tasks:
         - SOURCE
         - TARGET
     label: '{{.LABEL}}'
-    method: timestamp
     # conditions
     run: when_changed
+    preconditions:
+      - test -d {{dir .TARGET}}
+      - test ! -L '{{.TARGET}}'
     sources:
       - '{{.SOURCE}}'
-    generates:
-      - '{{.TARGET}}'
     # runner
     cmds:
       - cp -anf '{{.SOURCE}}' '{{.TARGET}}'
@@ -67,8 +83,6 @@ tasks:
     label: '{{.LABEL}}'
     # conditions
     run: when_changed
-    generates:
-      - '{{.TARGET_DIR}}'
     status:
       - test -d '{{.TARGET_DIR}}'
     # runner

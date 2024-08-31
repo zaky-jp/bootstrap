@@ -26,7 +26,7 @@ includes:
     taskfile: .task/plugins.yml
     aliases: [plug]
   internal:
-    taskfile: .task/internal.yml
+    taskfile: ../go-task/internal.yml
     internal: true
     aliases: [_, private]
 

@@ -1,0 +1,42 @@
+version: '3'
+vars:
+  RC_FILE: 'init.lua'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create config directory'
+    summary: 'Create $XDG_CONFIG_HOME/nvim directory'
+
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          LABEL: {ref: .TASK}
+          TARGET: {ref: .CONFIG_DIR}
+
+  install:
+    # meta
+    desc: 'Install neovim configurations'
+    summary: 'Install init.lua to $XDG_CONFIG_HOME/nvim'
+
+    # runner
+    cmds:
+      - task: install-init.lua
+
+  install-init.lua:
+    # meta
+    internal: true
+
+    # conditions
+    deps: [mkdir]
+    sources:
+      - '{{.RC_FILE}}'
+
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: {ref: .RC_FILE}
+          TARGET: '{{joinPath .CONFIG_DIR .RC_FILE}}'
+          LABEL: {ref: .TASK}

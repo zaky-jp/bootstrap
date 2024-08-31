@@ -1,0 +1,47 @@
+version: '3'
+vars:
+  JETPACK_DIR: '{{joinPath .DATA_DIR "pack" "jetpack" "opt" "vim-jetpack" "plugin"}}'
+  JETPACK_FILE: 'jetpack.vim'
+  JETPACK_URL: 'https://raw.githubusercontent.com/tani/vim-jetpack/master/plugin/jetpack.vim'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create jetpack directory'
+    summary: 'Create jetpack plugin directory under $XDG_DATA_HOME'
+
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          LABEL: {ref: .TASK}
+          TARGET: {ref: .JETPACK_DIR}
+
+  download:
+    # meta
+    desc: 'Download vim-jetpack'
+    summary: 'Download vim-jetpack from GitHub'
+
+    # runner
+    cmds:
+      - task: :private:download
+        vars:
+          URL: {ref: .JETPACK_URL}
+          FILE: {ref: .JETPACK_FILE}
+          LABEL: {ref: .TASK}
+
+  install:
+    # meta
+    desc: 'Install vim-jetpack'
+    summary: 'Install jetpack.vim to plugin directory under $XDG_DATA_HOME'
+
+    # conditions
+    deps: [mkdir, download]
+
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: {ref: .JETPACK_FILE}
+          TARGET: '{{joinPath .JETPACK_DIR .JETPACK_FILE}}'
+          LABEL: {ref: .TASK}

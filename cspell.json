@@ -1,25 +1,27 @@
 {
-  "dictionaryDefinitions": [
-    {
-      "name": "local",
-      "path": ".config/cspell/workspace-dictionary.txt",
-      "addWords": true
-    }
-  ],
-  "import": [
-    "@cspell/dict-docker/cspell-ext.json",
-    "@cspell/dict-makefile/cspell-ext.json"
-  ],
-  "dictionaries": [
-    "local",
-    "bash"
-  ],
-  "languageSettings": [
-    {
-      "languageId": "shellscript",
-      "dictionaries": [
-        "bash"
-      ]
-    }
-  ]
+	"dictionaryDefinitions": [
+		{
+			"name": "local",
+			"path": ".config/cspell/workspace-dictionary.txt",
+			"addWords": true
+		}
+	],
+	"import": [
+		"@cspell/dict-docker/cspell-ext.json",
+		"@cspell/dict-makefile/cspell-ext.json",
+		"@cspell/dict-vim/cspell-ext.json",
+		"@cspell/dict-lua/cspell-ext.json"
+	],
+	"dictionaries": [
+		"local",
+		"bash"
+	],
+	"languageSettings": [
+		{
+			"languageId": "shellscript",
+			"dictionaries": [
+				"bash"
+			]
+		}
+	]
 }

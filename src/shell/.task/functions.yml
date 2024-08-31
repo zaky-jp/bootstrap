@@ -8,31 +8,56 @@ tasks:
     # meta
     desc: 'Create zsh/functions directory'
     summary: 'Create directory $XDG_DATA_HOME/zsh/functions'
+
     # conditions
     run: once
+
     # runner
     cmds:
       - task: :private:mkdir
         vars:
-          LABEL: '{{.TASK}}'
-          TARGET: '{{.FUNC_DIR}}'
+          LABEL: {ref: .TASK}
+          TARGET: {ref: .FUNC_DIR}
 
   install:
     # meta
     desc: 'Install functions'
     summary: 'Install functions from local sources'
+    vars:
+      FUNCTIONS:
+        sh: find '{{.FUNC_ARTIFACT_DIR}}' -type f -not -name '.*'
+
     # conditions
     deps: [mkdir]
     preconditions:
       - test -d '{{.FUNC_DIR}}'
-    sources:
-      - '{{.FUNC_ARTIFACT_DIR}}/*'
-      - exclude: '{{.FUNC_ARTIFACT_DIR}}/.*'
+
     # runner
     cmds:
-      - for: sources
-        task: :private:cp
+      - for: {var: FUNCTIONS}
+        task: 'install-{{base .ITEM}}'
         vars:
           SOURCE: '{{.ITEM}}'
-          TARGET: '{{.FUNC_DIR}}/'
-          LABEL: '{{.TASK}}/{{base .ITEM}}'
+          TARGET: '{{joinPath .FUNC_DIR (base .ITEM)}}'
+
+  install-*:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - SOURCE
+        - TARGET
+    vars:
+      LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
+
+    # conditions
+    sources:
+      - '{{.SOURCE}}'
+
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .LABEL}

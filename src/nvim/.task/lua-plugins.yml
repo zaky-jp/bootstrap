@@ -1,37 +1,39 @@
 version: '3'
+vars:
+  PLUGIN_DIR: '{{joinPath .CONFIG_DIR "plugin"}}'
+  LUA_ARTIFACT_DIR: './lua-plugins'
 
 tasks:
   mkdir:
     # meta
-    desc: 'Create dotfiles directory'
-    summary: 'Create directory at $XDG_CONFIG_HOME/zsh'
-    # conditions
-    run: once
+    desc: 'Create nvim plugin directory'
+    summary: 'Create $XDG_CONFIG_HOME/nvim/plugin directory'
+
     # runner
     cmds:
       - task: :private:mkdir
         vars:
           LABEL: {ref: .TASK}
-          TARGET: {ref: .CONFIG_DIR}
+          TARGET: {ref: .PLUGIN_DIR}
 
   install:
     # meta
-    desc: 'Install dotfiles'
-    summary: 'Install .zshenv, .zprofile, and .zshrc from local sources'
+    desc: 'Install lua plugins'
+    summary: 'Install plugins to nvim/plugin directory'
     vars:
-      DOTFILES:
-        map: {.zshenv: env.zsh, .zprofile: profile.zsh, .zshrc: rc.zsh}
+      LUA_CONFIGS:
+        sh: find '{{.LUA_ARTIFACT_DIR}}' -type f -name '*.lua'
+
     # conditions
     deps: [mkdir]
-    preconditions:
-      - test -d '{{.CONFIG_DIR}}'
+
     # runner
     cmds:
-      - for: {var: DOTFILES}
+      - for: {var: LUA_CONFIGS}
         task: 'install-{{base .ITEM}}'
         vars:
           SOURCE: '{{.ITEM}}'
-          TARGET: '{{joinPath .CONFIG_DIR .KEY}}'
+          TARGET: '{{joinPath .PLUGIN_DIR (base .ITEM)}}'
 
   install-*:
     # meta
@@ -42,9 +44,8 @@ tasks:
         - TARGET
     vars:
       LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
-    # conditions
-    sources:
-      - '{{.SOURCE}}'
+    label: '{{.LABEL}}'
+
     # runner
     cmds:
       - task: :private:cp
