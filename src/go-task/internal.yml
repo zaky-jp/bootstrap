@@ -1,0 +1,135 @@
+version: '3'
+
+tasks:
+  mkdir:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - TARGET
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    preconditions:
+      - test ! -f {{.TARGET}}
+      - test ! -L {{.TARGET}}
+    status:
+      - test -d '{{.TARGET}}'
+    # runner
+    cmds:
+      - mkdir -p '{{.TARGET}}'
+
+  download:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - URL
+        - FILE
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    status:
+      - test -f '{{.FILE}}'
+    # runner
+    cmds:
+      - curl -sSfL -o '{{.FILE}}' '{{.URL}}'
+
+  install:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - SOURCE
+        - TARGET
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    preconditions:
+      - test -d {{dir .TARGET}}
+      - test ! -L '{{.TARGET}}'
+    sources:
+      - '{{.SOURCE}}'
+    # runner
+    cmds:
+      - sudo install {{with .MODE}}-m {{.MODE}}{{end}} '{{.SOURCE}}' '{{.TARGET}}'
+
+  cp:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - SOURCE
+        - TARGET
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    preconditions:
+      - test -d {{dir .TARGET}}
+      - test ! -L '{{.TARGET}}'
+    sources:
+      - '{{.SOURCE}}'
+    # runner
+    cmds:
+      - cp -anf '{{.SOURCE}}' '{{.TARGET}}'
+
+  git-clone:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - REMOTE_URL
+        - TARGET_DIR
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    status:
+      - test -d '{{.TARGET_DIR}}'
+    # runner
+    cmds:
+      - git clone --depth 1 '{{if .SPARSE}}--sparse{{end}}' '{{.REMOTE_URL}}' '{{.TARGET_DIR}}'
+
+  git-pull:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - TARGET_DIR
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    # runner
+    cmds:
+      - git -C '{{.TARGET_DIR}}' pull
+
+  git-sparse-checkout:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - TARGET_DIR
+        - PATTERN
+    label: '{{.LABEL}}'
+    # conditions
+    run: when_changed
+    status:
+      - test -d '{{joinPath .TARGET_DIR .PATTERN}}'
+    cmds:
+      - git -C '{{.TARGET_DIR}}' sparse-checkout add '{{.PATTERN}}'
+
+  gh-clone:
+    # meta
+    requires:
+      vars:
+        - LABEL
+        - GH_REPO
+        - BASE_DIR
+    label: '{{.LABEL}}'
+    # runner
+    cmds:
+      - task: git-clone
+        vars:
+          LABEL: '{{.LABEL}}'
+          REMOTE_URL: 'https://github.com/{{.GH_REPO}}.git'
+          TARGET_DIR: '{{joinPath .BASE_DIR .GH_REPO}}'
+          SPARSE: '{{default .SPARSE false}}'

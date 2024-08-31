@@ -1,0 +1,82 @@
+version: '3'
+vars:
+  MODULE_DIR: '{{joinPath .DATA_DIR "lua"}}'
+  MODULE_ARTIFACT_DIR: './lua-modules'
+
+tasks:
+  mkdir:
+    # meta
+    desc: 'Create lua module directory'
+    summary: 'Create $XDG_CONFIG_HOME/nvim/lua directory'
+
+    # runner
+    cmds:
+      - task: 'mkdir-{{base .MODULE_DIR}}'
+        vars:
+          TARGET: {ref: .MODULE_DIR}
+
+  install:
+    # meta
+    desc: 'Install lua modules'
+    summary: 'Install lua modules to $XDG_DATA_HOME/nvim/lua'
+    vars:
+      MODULE_FILES:
+        sh: find '{{.MODULE_ARTIFACT_DIR}}' -type f -name '*.lua' | perl -pe 's/^(\.\/)?\S+?\///'
+
+    # conditions
+    deps: [mkdir]
+
+    # runner
+    cmds:
+      - for: {var: MODULE_FILES}
+        task: 'mkdir-{{base (dir .ITEM)}}'
+        vars:
+          TARGET: '{{dir (joinPath .MODULE_DIR .ITEM)}}'
+      - for: {var: MODULE_FILES}
+        task: 'install-{{base .ITEM}}'
+        vars:
+          SOURCE: '{{joinPath .MODULE_ARTIFACT_DIR .ITEM}}'
+          TARGET: '{{joinPath .MODULE_DIR .ITEM}}'
+
+  mkdir-*:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - TARGET
+    vars:
+      LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
+    label: '{{.LABEL}}'
+
+    # conditions
+    run: when_changed
+
+    # runner
+    cmds:
+      - task: :private:mkdir
+        vars:
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .LABEL}
+
+  install-*:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - SOURCE
+        - TARGET
+    vars:
+      LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
+    label: '{{.LABEL}}'
+
+    # conditions
+    preconditions:
+      - test -d '{{dir .TARGET}}'
+
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .LABEL}

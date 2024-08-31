@@ -3,5 +3,5 @@ if (( ${+commands[editor]} )); then
 elif (( ${+commands[nvim]} )); then
   export EDITOR=nvim
 else
-  export EDTIOR=vi # fallback to vi
+  export EDITOR=vi # fallback to vi
 fi
