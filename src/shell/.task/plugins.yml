@@ -1,5 +1,6 @@
 version: '3'
 vars:
+  RC_ARTIFACT_DIR: './rc.d'
   PLUGIN_DIR: '{{joinPath .DATA_DIR "plugins"}}'
   PLUGIN_ARTIFACT_FILE: './rc.d/plugins.zsh'
   OHMYZSH_REPO: 'ohmyzsh/ohmyzsh'
@@ -42,6 +43,8 @@ tasks:
     # meta
     desc: 'Install zsh plugins'
     summary: 'Install zsh plugins from remotes'
+    # conditions
+    deps: [build-plugin-loader]
     # runner
     cmds:
       - task: install-plugins
@@ -54,35 +57,31 @@ tasks:
     aliases: [loader]
     # conditions
     preconditions:
-      - test -d './rc.d'
+      - test -d '{{.RC_ARTIFACT_DIR}}'
     # runner
     cmds:
       - for: {var: plugins}
-        task: add_plugin
+        task: 'add-plugin-loader-{{base .KEY}}'
         vars:
           PLUGIN_FILE: '{{joinPath .PLUGIN_DIR .KEY .ITEM}}'
-          LABEL: '{{.TASK}}/{{base .KEY}}'
       - for: {var: ohmyzsh-plugins}
-        task: add_plugin
+        task: 'add-plugin-loader-{{base .KEY}}'
         vars:
           PLUGIN_FILE: '{{joinPath .PLUGIN_DIR .OHMYZSH_REPO .KEY .ITEM}}'
-          LABEL: '{{.TASK}}/{{base .KEY}}'
 
-  add_plugin:
+  add-plugin-loader-*:
     # meta
     internal: true
     requires:
       vars:
         - PLUGIN_FILE
-        - LABEL
-    label: '{{.LABEL}}'
     vars:
       ADD_STATEMENT: 'source "{{.PLUGIN_FILE}}"'
-      REGEX: '^{{.ADD_STATEMENT}}$'
+    label: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
     # conditions
     status:
       - test -e '{{.PLUGIN_ARTIFACT_FILE}}'
-      - grep -qE '{{.REGEX}}' '{{.PLUGIN_ARTIFACT_FILE}}'
+      - grep -qE '^{{.ADD_STATEMENT}}$' '{{.PLUGIN_ARTIFACT_FILE}}'
     # runner
     cmds:
       - echo '{{.ADD_STATEMENT}}' >> '{{.PLUGIN_ARTIFACT_FILE}}'

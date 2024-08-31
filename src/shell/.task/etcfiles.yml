@@ -17,34 +17,50 @@ tasks:
 
   install-zshenv:
     # meta
-    desc: 'Install /etc/zshenv'
-    summary: 'Install /etc/zshenv from a local artifact'
+    internal: true
+    vars:
+      FILE: 'zshenv'
+      SOURCE: '{{joinPath .ETC_ARTIFACT_DIR .FILE}}'
+      TARGET: '{{joinPath .ETC_DIR .FILE}}'
+      MODE: 644
+
     # conditions
     deps: [build-zshenv]
-    run: once
+    sources:
+      - '{{.SOURCE}}'
+
     # runner
     cmds:
       - task: :private:install
         vars:
-          SOURCE: '{{.ETC_ARTIFACT_DIR}}/zshenv'
-          TARGET: '{{.ETC_DIR}}/zshenv'
-          LABEL: '{{.TASK}}'
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          MODE: {ref: .MODE}
+          LABEL: {ref: .TASK}
 
   install-zprofile:
     # meta
-    desc: 'Install /etc/zprofile'
-    summary: 'Install /etc/zprofile from a local artifact'
+    internal: true
+    vars:
+      FILE: 'zprofile'
+      SOURCE: '{{joinPath .ETC_ARTIFACT_DIR .FILE}}'
+      TARGET: '{{joinPath .ETC_DIR .FILE}}'
+      MODE: 644
+
     # conditions
     platforms: [darwin]
     deps: [build-zprofile]
-    run: once
+    sources:
+      - '{{.SOURCE}}'
+
     # runner
     cmds:
       - task: :private:install
         vars:
-          SOURCE: '{{.ETC_ARTIFACT_DIR}}/zprofile'
-          TARGET: '{{.ETC_DIR}}/zprofile'
-          LABEL: '{{.TASK}}'
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          MODE: {ref: .MODE}
+          LABEL: {ref: .TASK}
 
   build-artifact-dir:
     # meta
@@ -56,8 +72,8 @@ tasks:
     cmds:
       - task: :private:mkdir
         vars:
-          LABEL: '{{.TASK}}'
-          TARGET: '{{.ETC_ARTIFACT_DIR}}'
+          LABEL: {ref: .TASK}
+          TARGET: {ref: .ETC_ARTIFACT_DIR}
 
   build-zshenv:
     # meta
@@ -65,13 +81,14 @@ tasks:
     summary: 'Build a local artifact from /etc/zshenv, adding $XDG_CONFIG_HOME reference'
     vars:
       ADD_STATEMENT: 'export ZDOTDIR=$HOME/.config/zsh'
-      ORIGIN: '{{.ETC_DIR}}/zshenv'
-      TARGET: '{{.ETC_ARTIFACT_DIR}}/zshenv'
+      FILE: 'zshenv'
+      SOURCE: '{{joinPath .ETC_DIR .FILE}}'
+      TARGET: '{{joinPath .ETC_ARTIFACT_DIR .FILE}}'
     # conditions
     run: once
     deps: [build-artifact-dir]
     preconditions:
-      - test -e '{{dir .TARGET}}'
+      - test -d '{{dir .TARGET}}'
     status:
       - test -e '{{.TARGET}}'
       - grep -qe '{{.ADD_STATEMENT}}' '{{.TARGET}}'
@@ -79,23 +96,25 @@ tasks:
     cmds:
       - task: :private:cp
         vars:
-          SOURCE: '{{.ORIGIN}}'
-          TARGET: '{{.TARGET}}'
-          LABEL: '{{.TASK}}'
-      - grep -qve '{{.ADD_STATEMENT}}' '{{.ORIGIN}}' && echo '{{.ADD_STATEMENT}}' >> '{{.TARGET}}'
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .TASK}
+      - grep -qve '{{.ADD_STATEMENT}}' '{{.TARGET}}'
+      - echo '{{.ADD_STATEMENT}}' >> '{{.TARGET}}'
 
   build-zprofile:
     # meta
     desc: 'Build zprofile'
     summary: 'Build a local artifact from /etc/zprofile, commenting out notorious path_helper (applicable to macOS)'
     vars:
-      ORIGIN: '{{.ETC_DIR}}/zprofile'
-      TARGET: '{{.ETC_ARTIFACT_DIR}}/zprofile'
+      FILE: 'zprofile'
+      SOURCE: '{{joinPath .ETC_DIR .FILE}}'
+      TARGET: '{{joinPath .ETC_ARTIFACT_DIR .FILE}}'
     # conditions
     run: once
     deps: [build-artifact-dir]
     preconditions:
-      - test -e '{{dir .TARGET}}'
+      - test -d '{{dir .TARGET}}'
     platforms: [darwin]
     status:
       - test -e '{{.TARGET}}'
@@ -104,8 +123,8 @@ tasks:
     cmds:
       - task: :private:cp
         vars:
-          SOURCE: '{{.ORIGIN}}'
-          TARGET: '{{.TARGET}}'
-          LABEL: '{{.TASK}}'
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .TASK}
       - grep -vqE '^#' '{{.TARGET}}' && false || true
       - perl -pi -e 's/^([^#])/# $1/' '{{.TARGET}}'

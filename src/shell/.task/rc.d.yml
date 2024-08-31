@@ -21,18 +21,34 @@ tasks:
     # meta
     desc: 'Install env fragments'
     summary: 'Install .zshenv fragments from local sources'
+    vars:
+      FRAGMENTS:
+        sh: find '{{.RC_ARTIFACT_DIR}}' -type f -name '*.zsh';
     # conditions
     deps: [mkdir]
     preconditions:
       - test -d '{{.RC_DIR}}'
-    sources:
-      - '{{.RC_ARTIFACT_DIR}}/*.zsh'
-      - exclude: '{{.RC_ARTIFACT_DIR}}/.*'
     # runner
     cmds:
-      - for: sources
-        task: :private:cp
+      - for: {var: FRAGMENTS}
+        task: 'install-{{base .ITEM}}'
         vars:
           SOURCE: '{{.ITEM}}'
-          TARGET: '{{.RC_DIR}}/'
-          LABEL: '{{.TASK}}/{{base .ITEM}}'
+          TARGET: '{{joinPath .RC_DIR (base .ITEM)}}'
+
+  install-*:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - SOURCE
+        - TARGET
+    vars:
+      LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: '{{.SOURCE}}'
+          TARGET: '{{.TARGET}}'
+          LABEL: '{{.LABEL}}'

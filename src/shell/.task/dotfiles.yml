@@ -4,15 +4,15 @@ tasks:
   mkdir:
     # meta
     desc: 'Create dotfiles directory'
-    summary: 'Create directory at $XDG_CONFIG_HOME/zsh' # hardcoded for bootstrapping
+    summary: 'Create directory at $XDG_CONFIG_HOME/zsh'
     # conditions
     run: once
     # runner
     cmds:
       - task: :private:mkdir
         vars:
-          LABEL: '{{.TASK}}'
-          TARGET: '{{.CONFIG_DIR}}'
+          LABEL: {ref: .TASK}
+          TARGET: {ref: .CONFIG_DIR}
 
   install:
     # meta
@@ -28,8 +28,27 @@ tasks:
     # runner
     cmds:
       - for: {var: DOTFILES}
-        task: :private:cp
+        task: 'install-{{base .ITEM}}'
         vars:
           SOURCE: '{{.ITEM}}'
           TARGET: '{{joinPath .CONFIG_DIR .KEY}}'
-          LABEL: '{{.TASK}}/{{.KEY}}'
+
+  install-*:
+    # meta
+    internal: true
+    requires:
+      vars:
+        - SOURCE
+        - TARGET
+    vars:
+      LABEL: '{{trimSuffix "-*" .TASK}}-{{index .MATCH 0}}'
+    # conditions
+    sources:
+      - '{{.SOURCE}}'
+    # runner
+    cmds:
+      - task: :private:cp
+        vars:
+          SOURCE: {ref: .SOURCE}
+          TARGET: {ref: .TARGET}
+          LABEL: {ref: .LABEL}
