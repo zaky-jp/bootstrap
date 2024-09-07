@@ -4,6 +4,12 @@
 	},
 	"conventionalCommits.scopes": [
 		"cspell",
-		"docker"
-	]
+		"docker",
+		"zsh"
+	],
+	"yaml.schemas": {
+		"https://taskfile.dev/schema.json": [
+			"**/.task/*.yml"
+		]
+	}
 }

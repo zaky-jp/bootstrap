@@ -6,4 +6,8 @@ vim.g.loaded_netrwPlugin = 1
 P = require('internal/pseudopack')
 
 P.push { 'tomtom/tcomment_vim' } -- enhance comment toggle
-P.sync()
+
+vim.api.nvim_create_autocmd({"VimEnter"}, {
+  pattern = {"*"},
+  callback = P.sync,
+})
