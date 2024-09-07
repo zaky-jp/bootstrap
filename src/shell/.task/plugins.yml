@@ -13,11 +13,7 @@ vars:
         'zsh-users/zsh-syntax-highlighting': 'zsh-syntax-highlighting.zsh',
       }
   ohmyzsh-plugins:
-    map:
-      {
-        'plugins/shrink-path': 'shrink-path.plugin.zsh',
-        'plugins/globalias': 'globalias.plugin.zsh',
-      }
+    map: {'plugins/shrink-path': 'shrink-path.plugin.zsh'}
   # cspell: enable
 
 tasks:

@@ -5,7 +5,8 @@
 	"conventionalCommits.scopes": [
 		"cspell",
 		"docker",
-		"zsh"
+		"zsh",
+		"nvim"
 	],
 	"yaml.schemas": {
 		"https://taskfile.dev/schema.json": [
