@@ -1,9 +1,9 @@
 {
   "devDependencies": {
-    "@cspell/dict-docker": "^1.1.7",
-    "@cspell/dict-lua": "^4.0.3",
-    "@cspell/dict-makefile": "^1.0.0",
-    "@cspell/dict-vim": "^1.0.4",
+    "@cspell/dict-docker": "^1.1.10",
+    "@cspell/dict-lua": "^4.0.6",
+    "@cspell/dict-makefile": "^1.0.3",
+    "@cspell/dict-vim": "^1.0.7",
     "prettier": "^3.3.3",
     "prettier-plugin-sh": "^0.14.0"
   }
