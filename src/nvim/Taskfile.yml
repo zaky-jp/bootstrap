@@ -113,4 +113,5 @@ tasks:
 
     # runner
     cmds:
-      - nvim --headless "+JetpackSync" "+qa"
+      # - nvim --headless "+JetpackSync" "+qa"
+      - echo "need to manually open nvim, as VimEnter cannot be called headlessly"

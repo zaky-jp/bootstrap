@@ -27,12 +27,13 @@ tasks:
   install-init.lua:
     # meta
     internal: true
-
+    vars:
+      TARGET: '{{joinPath .CONFIG_DIR .RC_FILE}}'
     # conditions
     deps: [mkdir]
-    sources:
-      - '{{.RC_FILE}}'
-
+    status:
+      - test -f '{{.TARGET}}'
+      - test '{{.TARGET}}' -nt '{{.RC_FILE}}'
     # runner
     cmds:
       - task: :private:cp
