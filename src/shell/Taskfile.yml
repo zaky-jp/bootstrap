@@ -41,6 +41,7 @@ tasks:
       - task: dotfiles:install
       - task: functions:install
       - task: plugins:build-plugin-loader
-      - task: fragments:rc.d:install
+      - task: fragments:env.d:build-all
       - task: fragments:env.d:install
+      - task: fragments:rc.d:install
       - task: plugins:update

@@ -11,8 +11,8 @@ tasks:
     # conditions
     run: when_changed
     preconditions:
-      - test ! -f {{.TARGET}}
-      - test ! -L {{.TARGET}}
+      - test ! -f '{{.TARGET}}'
+      - test ! -L '{{.TARGET}}'
     status:
       - test -d '{{.TARGET}}'
     # runner
@@ -31,6 +31,7 @@ tasks:
     run: when_changed
     status:
       - test -f '{{.FILE}}'
+      - curl -I -sSfL -z '{{.FILE}}' '{{.URL}}' && false
     # runner
     cmds:
       - curl -sSfL -o '{{.FILE}}' '{{.URL}}'
@@ -46,13 +47,13 @@ tasks:
     # conditions
     run: when_changed
     preconditions:
-      - test -d {{dir .TARGET}}
+      - test -d '{{dir .TARGET}}'
       - test ! -L '{{.TARGET}}'
     sources:
       - '{{.SOURCE}}'
     # runner
     cmds:
-      - sudo install {{with .MODE}}-m {{.MODE}}{{end}} '{{.SOURCE}}' '{{.TARGET}}'
+      - sudo install -m {{.MODE | default 0755}} '{{.SOURCE}}' '{{.TARGET}}'
 
   cp:
     # meta
@@ -65,7 +66,7 @@ tasks:
     # conditions
     run: when_changed
     preconditions:
-      - test -d {{dir .TARGET}}
+      - test -d '{{dir .TARGET}}'
       - test ! -L '{{.TARGET}}'
     sources:
       - '{{.SOURCE}}'
@@ -87,7 +88,7 @@ tasks:
       - test -d '{{.TARGET_DIR}}'
     # runner
     cmds:
-      - git clone --depth 1 '{{if .SPARSE}}--sparse{{end}}' '{{.REMOTE_URL}}' '{{.TARGET_DIR}}'
+      - git clone --depth 1{{if .SPARSE}}--sparse{{end}} '{{.REMOTE_URL}}' '{{.TARGET_DIR}}'
 
   git-pull:
     # meta

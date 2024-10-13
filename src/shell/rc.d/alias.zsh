@@ -25,3 +25,6 @@ alias ga="git add"
 alias gp="git push"
 alias gd="git diff"
 alias gds="git diff --staged"
+
+# task
+alias task="task --verbose"

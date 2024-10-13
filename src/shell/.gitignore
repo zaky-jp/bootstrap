@@ -1,2 +1,3 @@
 etc/
+env.d/brew.zsh
 rc.d/plugins.zsh
