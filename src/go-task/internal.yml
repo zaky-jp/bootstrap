@@ -68,11 +68,11 @@ tasks:
     preconditions:
       - test -d '{{dir .TARGET}}'
       - test ! -L '{{.TARGET}}'
-    sources:
-      - '{{.SOURCE}}'
+    status:
+      - test '{{.TARGET}}' -nt '{{.SOURCE}}'
     # runner
     cmds:
-      - cp -anf '{{.SOURCE}}' '{{.TARGET}}'
+      - cp -Rf '{{.SOURCE}}' '{{.TARGET}}'
 
   git-clone:
     # meta
