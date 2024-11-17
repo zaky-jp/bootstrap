@@ -5,5 +5,9 @@
     "ms-vscode-remote.remote-containers",
     "ms-azuretools.vscode-docker",
     "chrislajoie.vscode-modelines",
+    "redhat.vscode-yaml",
+    "github.vscode-pull-request-github",
+    "vivaxy.vscode-conventional-commits",
+    "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
   ]
 }

@@ -12,5 +12,8 @@
 		"https://taskfile.dev/schema.json": [
 			"**/.task/*.yml"
 		]
-	}
+	},
+	"markdown.styles": [
+		"https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+	]
 }

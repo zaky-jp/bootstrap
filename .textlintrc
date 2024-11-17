@@ -1,0 +1,15 @@
+{
+  "plugins": {},
+  "filters": {
+		"ja-named-entities": true
+	},
+  "rules": {
+	"period-in-list-item": {
+		"periodMark": "。"
+	},
+    "preset-ja-technical-writing": true,
+    "prh": {
+			"rulePaths": [".config/prh/rules.yml"]
+		}
+  }
+}
