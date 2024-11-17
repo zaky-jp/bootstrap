@@ -13,15 +13,19 @@ export RUNOS ?= $(eval RUNOS := $(shell getos)) # set once if not already define
 #
 # 'all' target
 .PHONY: all
-all: package-manager;
+all: package-manager go-task;
 
 # flow targets
-.PHONY: package-manager
+.PHONY: package-manager go-task
 package-manager:
-	$(LOG) INFO "Bootstrapping $(RUNOS)"
+	$(LOG) INFO "$(RUNOS)向けの初期設定を行います."
 ifeq "$(RUNOS)" "macos"
 	$(MAKE) -C $(CURDIR)/src/package-manager/brew
-endif
-ifeq "$(RUNOS)" "ubuntu"
+else ifeq "$(RUNOS)" "ubuntu"
 	$(MAKE) -C $(CURDIR)/src/package-manager/apt
+else
+	exit 1
 endif
+
+go-task:
+	$(MAKE) -C $(CURDIR)/src/go-task

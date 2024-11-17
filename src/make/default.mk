@@ -10,6 +10,7 @@ MKDIR := mkdir -p
 INSTALL := sudo install -b -S
 LOG := @slog
 APT := sudo apt-get
+SNAP := sudo snap
 CP := cp -an
 MAKE := @make
 vpath *.lock $(XDG_RUNTIME_DIR)
