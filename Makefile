@@ -4,7 +4,7 @@
 # 必要に応じてpackage-managerの設定も行う
 
 # 初期化
-export MAKEFILES := $(abspath $(CURDIR)/make/default.mk)
+export MAKEFILES := $(abspath $(CURDIR)/src/make/default.mk)
 include $(MAKEFILES)
 export PATH := $(abspath $(CURDIR)/.local/bin):$(PATH)
 export RUNOS ?= $(eval RUNOS := $(shell getos)) # set once if not already defined
@@ -20,8 +20,8 @@ all: package-manager;
 package-manager:
 	$(LOG) INFO "Bootstrapping $(RUNOS)"
 ifeq "$(RUNOS)" "macos"
-	$(MAKE) -C $(CURDIR)/package-manager/brew
+	$(MAKE) -C $(CURDIR)/src/package-manager/brew
 endif
 ifeq "$(RUNOS)" "ubuntu"
-	$(MAKE) -C $(CURDIR)/package-manager/apt
+	$(MAKE) -C $(CURDIR)/src/package-manager/apt
 endif

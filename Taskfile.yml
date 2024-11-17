@@ -1,9 +1,9 @@
 # https://taskfile.dev
 version: '3'
 env:
-  WORKSPACE_DIR: '{{dir .ROOT_DIR}}'
+  WORKSPACE_DIR: '{{.ROOT_DIR}}'
 includes:
-  shell: shell
+  shell: src/shell
 
 tasks:
   default:
