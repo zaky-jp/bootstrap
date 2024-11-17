@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -euo pipefail
 
 # @define [string] functions
 lowercase() {
 	str="$*"
-	echo "${str,,}" # bash builtin substituting `tr '[:upper:]' '[:lower:]'``
+	echo $str | tr '[:upper:]' '[:lower:]' # macos bash cannot process ${str,,}
 }
 
 # @define [info gathering] functions

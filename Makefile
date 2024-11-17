@@ -1,28 +1,27 @@
-include .config/make/default.mk
+#!/usr/bin/make
+#
+# go-taskのインストールまでを自動化するスクリプト
+# 必要に応じてpackage-managerの設定も行う
+
+# 初期化
+export MAKEFILES := $(abspath $(CURDIR)/make/default.mk)
+include $(MAKEFILES)
 export PATH := $(abspath $(CURDIR)/.local/bin):$(PATH)
 export RUNOS ?= $(eval RUNOS := $(shell getos)) # set once if not already defined
 
-# run install when package.json is newer than package-lock.json
-.PHONY: npm
-npm: | package-lock.json;
-package-lock.json: package.json
-	npm install
+# target定義
+#
+# 'all' target
+.PHONY: all
+all: package-manager;
 
-.PHONY: volta
-volta: | volta.lock;
-volta.lock:
-	volta install npm
-
-.PHONY: init
-init:
-	$(LOG) INFO "Bootstrapping $(RUNOS)"
-	@ $(MAKE) package-manager
-
+# flow targets
 .PHONY: package-manager
 package-manager:
+	$(LOG) INFO "Bootstrapping $(RUNOS)"
 ifeq "$(RUNOS)" "macos"
-	@ $(MAKE) -C $(CURDIR)/package-manager brew
+	$(MAKE) -C $(CURDIR)/package-manager/brew
 endif
 ifeq "$(RUNOS)" "ubuntu"
-	@ $(MAKE) -C $(CURDIR)/package-manager apt
+	$(MAKE) -C $(CURDIR)/package-manager/apt
 endif

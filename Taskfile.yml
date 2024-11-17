@@ -1,0 +1,58 @@
+# https://taskfile.dev
+version: '3'
+env:
+  WORKSPACE_DIR: '{{dir .ROOT_DIR}}'
+includes:
+  shell: shell
+
+tasks:
+  default:
+    # attributes
+    desc: List available tasks
+    silent: true
+    cmds:
+      - task --list
+
+  npm:install-self:
+    # attributes
+    desc: Install npm
+    summary: |-
+      Use volta to install latest npm, node package manager.
+    # conditions
+    run: once
+    preconditions:
+      - sh: command -v volta
+        msg: volta is not installed.
+      - sh: test -n "${VOLTA_HOME}"
+        msg: $VOLTA_HOME is not defined.
+    status:
+      - test $(volta list --format plain npm | wc -l) -eq 1
+    # runner
+    cmds:
+      - volta install node npm
+
+  npm:install-packages:
+    # attributes
+    desc: Install npm packages
+    summary: |
+      Use volta to install node, npm and npm packages.
+    # conditions
+    run: once
+    deps:
+      - npm:install-self
+    # runner
+    cmds:
+      - npm install
+
+  npm:update:
+    # attributes
+    desc: Update npm packages
+    summary: |
+      Update npm packages installed at the root folder
+    # conditions
+    run: once
+    preconditions:
+      - test $(volta list --format plain npm | wc -l) -eq 1
+    # runner
+    cmds:
+      - npm update
