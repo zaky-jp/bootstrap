@@ -35,7 +35,8 @@ export LC_MESSAGES="en_GB.UTF-8"
 	fi
 }
 
-# Load local functions
+# Load & set common configuration
+## Load local functions
 () {
 	emulate -L zsh -o extended_glob -o nonomatch
 	fpath=("${XDG_DATA_HOME}/zsh/functions" $fpath)
@@ -44,8 +45,11 @@ export LC_MESSAGES="en_GB.UTF-8"
 	done
 }
 
-# Add local bin
+## Append path to includes
 unshift path $XDG_BIN_HOME
+
+# OS specific settings
+export RUNOS=$(getos)
 
 # Source env configuration fragments
 # bootstrap should choose to copy or not copy app-specific env configuration fragments to $XDG_CONFIG_HOME/zsh/env.d/
@@ -60,3 +64,7 @@ unshift path $XDG_BIN_HOME
 # Bring local bin to the front of the path array
 unshift path $XDG_BIN_HOME
 typeset -gU PATH path
+
+if [[ "${RUNOS}" == ubuntu ]]; then
+	skip_global_compinit=1
+fi

@@ -1,5 +1,3 @@
-MAKEFILES ?= $(XDG_CONFIG_HOME)/make/default.mk
-
 # @define sensible default
 ifdef COMSPEC # only defined on Windows
   SHELL := pwsh
@@ -12,7 +10,9 @@ MKDIR := mkdir -p
 INSTALL := sudo install -b -S
 LOG := @slog
 APT := sudo apt-get
+SNAP := sudo snap
 CP := cp -an
+MAKE := @make
 vpath *.lock $(XDG_RUNTIME_DIR)
 # @end
 

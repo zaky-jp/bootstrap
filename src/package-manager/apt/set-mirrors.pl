@@ -1,4 +1,11 @@
 #!/usr/bin/env perl
+#
+# security以外のレポジトリをミラーに置き換えた結果を出力するスクリプト
+# 置き換え結果はSTDOUTに出力される
+#
+# 使い方:
+# set-mirrors.pl [読み取り元ファイル] [ミラーファイル]
+#
 use strict;
 use warnings;
 use utf8;

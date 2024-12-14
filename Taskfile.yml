@@ -1,0 +1,15 @@
+# https://taskfile.dev
+version: '3'
+env:
+  WORKSPACE_DIR: '{{.ROOT_DIR}}'
+includes:
+  shell: src/shell
+  node: src/node
+
+tasks:
+  default:
+    # attributes
+    desc: タスクの一覧を表示する.
+    silent: true
+    cmds:
+      - task --list
