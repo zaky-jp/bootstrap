@@ -4,7 +4,7 @@
     "@cspell/dict-lua": "^4.0.7",
     "@cspell/dict-makefile": "^1.0.4",
     "@cspell/dict-vim": "^1.0.8",
-    "prettier": "^3.4.2",
+    "prettier": "^3.5.0",
     "prettier-plugin-sh": "^0.14.0",
     "textlint": "^14.4.2",
     "textlint-filter-rule-ja-named-entities": "^1.0.3",
