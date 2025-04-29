@@ -6,8 +6,8 @@
 # 初期化
 export MAKEFILES := $(abspath $(CURDIR)/src/make/default.mk)
 include $(MAKEFILES)
-export PATH := $(abspath $(CURDIR)/.local/bin):$(PATH)
-export RUNOS ?= $(eval RUNOS := $(shell getos)) # set once if not already defined
+export RUNOS ?= $(eval RUNOS := $(shell ./.local/bin/getos)) # 下記PATH設定よりもshellコマンド実行の方が早いためgetosを相対パスにて指定
+export PATH := $(abspath $(CURDIR)/.local/bin):$(PATH) # slogを利用するためにPATHに追加する
 
 # target定義
 #

@@ -40,7 +40,7 @@ check:
 .PHONY: clean
 clean:
 	$(LOG) DEBUG "lockファイルを削除します..."
-	$(RM) $(INSTALL_CACHING_LOCK) $(INSTALL_SOURCE_LOCK)
+	$(RM) $(XDG_RUNTIME_DIR)/$(INSTALL_CACHING_LOCK) $(XDG_RUNTIME_DIR)/$(INSTALL_SOURCE_LOCK)
 
 # runner targets
 #
@@ -50,15 +50,16 @@ clean:
 INSTALL_CACHING_LOCK := caching.lock
 vpath $(INSTALL_CACHING_LOCK) $(XDG_RUNTIME_DIR)
 $(INSTALL_CACHING_LOCK):
-	sudo $(RM) /etc/apt/apt.conf.d/docker-clean
+	[[ ! -e /etc/apt/apt.conf.d/docker-clean ]] || sudo $(RM) /etc/apt/apt.conf.d/docker-clean
 	touch $(XDG_RUNTIME_DIR)/$@
 
 # CONF_FILE:
 # apt.confのデフォルト設定を配置する.
 # 最後に読み込ませたいため、prefixに99を指定する.
 # 読み込み順についての詳細: https://manpages.ubuntu.com/manpages/noble/en/man5/apt.conf.5.html
-INSTALL_CONF_FILE := /etc/apt.conf.d/99default.conf
+INSTALL_CONF_FILE := /etc/apt/apt.conf.d/99default.conf
 $(INSTALL_CONF_FILE): default.conf
+	sudo $(MKDIR) /etc/apt/apt.conf.d
 	$(INSTALL) -m 644 $< $@
 
 # MIRROR_FILE:
@@ -81,12 +82,12 @@ INTERMEDIATE_SOURCE_FILE := sources.list
 endif
 INSTALL_SOURCE_LOCK := sources.lock
 
-.INTERMEDIATE $(INTERMEDIATE_SOURCE_FILE)
+.INTERMEDIATE: $(INTERMEDIATE_SOURCE_FILE)
 $(INTERMEDIATE_SOURCE_FILE): set-mirrors.pl
-	$(LOG) INFO "Generating apt source file with mirrors."
+	$(LOG) INFO "MIRROR_FILEに基づいてapt sourceファイルを更新します..."
 	perl set-mirrors.pl $(ORIG_SOURCE_FILE) $(INSTALL_MIRROR_FILE) | tee $@ 1>/dev/null
 
 vpath $(INSTALL_SOURCE_LOCK) $(XDG_RUNTIME_DIR)
 $(INSTALL_SOURCE_LOCK): $(INTERMEDIATE_SOURCE_FILE)
-	$(INSTALL) -m 644 $< $@
-	touch $(XDG_RUNTIME_DIR)/$(INSTALL_SOURCE_LOCK)
+	$(INSTALL) -m 644 $< $(ORIG_SOURCE_FILE)
+	touch $(XDG_RUNTIME_DIR)/$@

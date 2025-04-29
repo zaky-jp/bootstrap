@@ -7,7 +7,7 @@ else
 endif
 RM := rm -rf
 MKDIR := mkdir -p
-INSTALL := sudo install -b -S
+INSTALL := sudo install -b
 LOG := @slog
 APT := sudo apt-get
 SNAP := sudo snap
