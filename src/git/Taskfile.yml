@@ -1,0 +1,88 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  git_username: Rintaro Kanzaki
+  git_email: 105104188+zaky-jp@users.noreply.github.com
+  GIBO_BOILERPLATES: '{{.XDG_DATA_HOME}}/gibo'
+
+tasks:
+  config-user:
+    # attributes
+    desc: 'Configure git user'
+    summary: 'Set git user name and email'
+
+    # runner
+    cmds:
+      - git config --global user.name "{{.git_username}}"
+      - git config --global user.email "{{.git_email}}"
+
+  config-gitignore:
+    # attributes
+    desc: 'Configure gitignore'
+    summary: 'Set gitignore global file'
+    vars:
+      platform: '{{if eq (OS) "darwin"}}"macOS"{{else}}{{OS}}{{end}}'
+
+    # conditions
+    deps:
+      - install-gibo
+
+    # runner
+    cmds:
+      - git config --global core.excludesfile "{{.GIBO_BOILERPLATES}}/global.gitignore"
+      - gibo update
+      - gibo dump {{.platform}} vim visualstudiocode > "{{.GIBO_BOILERPLATES}}/global.gitignore"
+
+  install-gibo:
+    # attributes
+    desc: 'Install gibo'
+    summary: 'Install gibo from package manager'
+
+    # conditions
+    run: once
+    status:
+      - command -v gibo
+      - test -d "{{.GIBO_BOILERPLATES}}"
+
+    # runner
+    cmds:
+      - mkdir -p "{{.GIBO_BOILERPLATES}}"
+      - task: install-gibo-macos
+      - task: install-gibo-linux
+
+  install-gibo-macos:
+    # attributes
+    internal: true
+
+    # conditions
+    platforms:
+      - darwin
+    preconditions:
+      - command -v brew
+
+    # runner
+    cmds:
+      - brew install gibo
+
+  install-gibo-linux:
+    # attributes
+    internal: true
+    vars:
+      tmpdir: '{{.XDG_CACHE_HOME}}/gibo'
+      release:
+        map:
+          amd64: 'https://github.com/simonwhitaker/gibo/releases/latest/download/gibo_Linux_x86_64.tar.gz'
+          arm64: 'https://github.com/simonwhitaker/gibo/releases/latest/download/gibo_Linux_arm64.tar.gz'
+
+    # conditions
+    platforms:
+      - linux
+
+    # runner
+    cmds:
+      - mkdir -p "{{.tmpdir}}"
+      - curl -fL -o "{{.tmpdir}}/gibo.tar.gz" "{{get .release ARCH}}"
+      - tar -xzf "{{.tmpdir}}/gibo.tar.gz" -C "{{.tmpdir}}"
+      - sudo /usr/bin/install "{{.tmpdir}}/gibo" /usr/local/bin/gibo

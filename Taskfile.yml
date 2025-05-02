@@ -2,9 +2,11 @@
 version: '3'
 env:
   WORKSPACE_DIR: '{{.ROOT_DIR}}'
+  XDG_CACHE_HOME: '{{.XDG_CACHE_HOME | default (joinPath .HOME ".cache")}}'
 includes:
   shell: src/shell
   node: src/node
+  git: src/git
 
 tasks:
   default:
